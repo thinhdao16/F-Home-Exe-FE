@@ -1,0 +1,198 @@
+ .body {
+    padding: 0;
+    margin: 0;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-weight: 400;
+    color: var(--text-color);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    line-height: 1.2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: #f9f9f9;
+    background-image: url(https://canhovinhomes.info/wp-content/uploads/2022/05/tong-quan-1-webp.webp);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+ }
+
+ #site-logo {
+    margin: 0 0 20px;
+    padding: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+ }
+
+ #site-logo img {
+    max-height: 50px;
+ }
+
+ #wrap-main-content {
+    display: block;
+    background-color: white;
+    text-align: center;
+    padding: 20px;
+    height: 100%;
+    max-width: 470px;
+    width: 100%;
+    box-shadow: 0px 8px 32px rgb(0 0 0 / 7%);
+    border-radius: 15px;
+ }
+
+ .identity-tabs {
+    display: flex;
+    margin: 0 -24px 24px;
+ }
+
+ .identity-tabs a.active {
+    color: #252525;
+ }
+
+ .identity-tabs a {
+    flex: 1;
+    display: inline-block;
+    text-transform: capitalize;
+    text-align: center;
+    text-decoration: none;
+    color: var(--main-color);
+    font-weight: 600;
+    padding: 0 0 10px;
+    font-size: 32px;
+    letter-spacing: 1px;
+ }
+
+ .wrap-form-field {
+    margin-bottom: 10px;
+    text-align: left;
+ }
+
+ .wrap-form-field .form-group {
+    margin: 0;
+    display: flex;
+    align-items: center;
+ }
+
+ .list-social-login {
+    margin: 0;
+    padding: 0 0 9px;
+ }
+
+ .list-social-login li {
+    list-style: none;
+    width: 100%;
+    margin-bottom: 20px;
+    display: block;
+ }
+
+ .list-social-login li .googleButton {
+    border-radius: 8px !important;
+    width: 100% !important;
+    background-color: #ffff !important;
+    color: #373a3c !important;
+    height: 39px !important;
+    line-height: 37px !important;
+    transition: all 300ms !important;
+    box-shadow: 1px 1px 3px rgb(0 0 0 / 17%) !important;
+ }
+
+ .list-social-login li .googleButton:hover {
+    box-shadow: 0 0 11px rgba(33, 33, 33, .2) !important;
+ }
+
+ .list-social-login li .googleButton div {
+    height: 25px !important;
+    margin-top: 0px !important;
+    border-radius: 50% !important;
+    padding-bottom: 5px !important;
+ }
+
+ .group-width-icon {
+    border-radius: 25px;
+    color: var(--main-color);
+ }
+
+ .form-group {
+    width: 100%;
+    margin-bottom: 20px;
+    position: relative;
+ }
+
+ .group-width-icon i {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    font-size: 20px;
+ }
+
+ .group-width-icon input {
+    border: none;
+    width: 100%;
+    padding: 13px 25px 13px 50px;
+    background: transparent;
+    border-radius: 8px;
+    line-height: 22px;
+    border: 1px solid #D9D9D9;
+    font-size: 16px;
+    outline: none;
+ }
+
+ .text-danger {
+    color: red;
+ }
+
+ .field-validation-error {
+    width: 100%;
+    text-align: left;
+    display: inline-block;
+    font-size: 16px;
+    padding: 10px 0 0;
+ }
+
+ .form-identify .btn {
+    width: 100%;
+    display: inline-block;
+    text-decoration: none;
+    text-transform: capitalize;
+    font-size: 18px;
+    font-weight: 600;
+    height: 50px;
+    border-radius: 8px;
+    padding: 10px 25px;
+    line-height: 30px;
+    box-shadow: none;
+    cursor: pointer;
+    transition: all 300ms;
+    font-family: inherit;
+    background-color: #377DFF;
+ }
+
+ .form-identify {
+    margin-bottom: 16px;
+ }
+
+ .form-identify .btn:hover {
+    box-shadow: 0 0 11px #377DFF;
+ }
+
+ .form-identify .change-rtn-home {
+    color: #377DFF;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 18px;
+    margin-top: 30px;
+ }
+
+ .form-identify.change-rtn-home:hover {
+    color: #243f50 !important;
+ }

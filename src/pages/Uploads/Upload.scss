@@ -1,0 +1,23 @@
+// .product-storage img{
+//     margin: 5px;
+//     border: 1px solid #ccc;
+//     float: left;
+//     width: 180px;
+// }
+.product-storage .card-img-top {
+    max-height: 250px;
+    overflow: hidden;
+}
+
+.product-storage .card-title a:link {
+    font-size: 30px;
+    background-color: transparent;
+    color: #000000;
+    text-decoration: none;
+}
+
+.product-storage .card-title a:hover {
+    color: red;
+    background-color: transparent;
+    text-decoration: underline;
+}

@@ -20,6 +20,7 @@ import PostComment from "./PostComment";
 import { DataContext } from "../DataContext";
 import toastr from "cogo-toast";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 import {
   Button,
   Card,
@@ -39,9 +40,10 @@ import ModalClose from '@mui/joy/ModalClose';
 // import Typography from '@mui/joy/Typography';
 import Sheet from '@mui/joy/Sheet';
 import { Image } from "antd";
-import { AccountCircle } from "@mui/icons-material";
+import { AccountCircle, CurrencyBitcoinOutlined, CurrencyExchange } from "@mui/icons-material";
 import { Textarea } from "@mui/joy";
-
+import { AuthContext } from "../../components/context/AuthContext";
+import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 function Posting({ children, filePath }) {
   const [success, setSuccess] = useState(false);
 
@@ -49,84 +51,62 @@ function Posting({ children, filePath }) {
   const userPosting = JSON.parse(localStorage.getItem("access_token"));
   const userPostings = userPosting?.data?.user;
 
-  const { posting, setPosting, allCmt, setAllCmt, isLiked, setIsLiked, point, setPoint } =
+  const { posting, setPosting, allCmt, setAllCmt, isLiked, setIsLiked, point, setPoint, } =
     useContext(DataContext);
-
+  console.log(isLiked)
+  const { setIsPendingUpdated, isPendingUpdated, selectedPost, setSelectedPost } = useContext(AuthContext)
+  // console.log(selectedPost)
   const [postingPush, setPostingPush] = useState([]);
-  const [refresh, setRefresh] = useState(false); // thêm state để xác định trạng thái của nút "Làm mới"
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:3000/getAllFavourite",
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${userPosting.data.accessToken}`,
-          },
-        }
-      );
-      setIsLiked(response.data?.data?.favourite);
-
-      const responsePost = await axios.get(
-        "http://localhost:3000/posts/",
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${userPosting.data.accessToken}`,
-          },
-        }
-      );
-      setPostingPush(responsePost?.data?.data);
-
-      const responsePostComment = await axios.get(
-        "http://localhost:3000/allComment/",
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${userPosting.data.accessToken}`,
-          },
-        }
-      );
-      setAllCmt(responsePostComment?.data?.data?.postingComments);
-      const responsePoint = await axios.get(
-        `http://localhost:3000/users/${userPostings.id}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${userPosting.data.accessToken}`,
-          },
-        }
-      );
-      setPoint(responsePoint?.data);
-    } catch (error) {
-      toastr.error("Can not find post", {
-        position: "top-right",
-        heading: "Done",
-      });
-    }
-  };
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/getAllFavourite", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userPosting.data.accessToken}`,
+          },
+        });
+        setIsLiked(response.data?.data?.favourite);
+
+        const responsePost = await axios.get("http://localhost:3000/posts/", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userPosting.data.accessToken}`,
+          },
+        });
+        setPostingPush(responsePost?.data?.data);
+
+        const responsePostComment = await axios.get("http://localhost:3000/allComment/", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userPosting.data.accessToken}`,
+          },
+        });
+        setAllCmt(responsePostComment?.data?.data?.postingComments);
+
+        const responsePoint = await axios.get(`http://localhost:3000/users/${userPostings.id}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userPosting.data.accessToken}`,
+          },
+        });
+        setPoint(responsePoint?.data);
+      } catch (error) {
+        toastr.error("Can not find post", {
+          position: "top-right",
+          heading: "Done",
+        });
+      }
+    };
     fetchData();
-  }, [refresh]); // thêm refresh vào dependency array để khi giá trị của refresh thay đổi thì useEffect sẽ chạy lại
-
-  const handleRefresh = () => {
-    setRefresh(!refresh); // đổi giá trị của refresh để gọi lại useEffect
-  };
-
-
-  useEffect(() => {
-    if (postingPush?.postings?.length > 0) {
-      setPosting(postingPush?.postings);
-    }
-  }, [postingPush?.postings]);
-
+  }, [isPendingUpdated]);
   const arrPostPublish = useMemo(() => {
     if (!postingPush) return [];
     return postingPush?.postings?.filter(
       (posting) => posting.status === "published"
     );
   }, [postingPush]);
-  // console.log(arrPostPublish);
+
   const arrPostDarft = useMemo(() => {
     if (!postingPush) return [];
 
@@ -135,13 +115,12 @@ function Posting({ children, filePath }) {
         posting?.userPosting?._id === userPostings?.id
     );
   }, [postingPush]);
-  // console.log(postingPush)
+
   const postCommentRef = useRef(null);
   const [value, setValue] = React.useState(0);
 
-  const [selectedPost, setSelectedPost] = useState(null);
-
   function handleCommentPost(event, id) {
+    console.log(id)
     event.preventDefault();
     const index = postingPush?.postings?.findIndex((item) => item._id === id);
     const idDataPost = postingPush?.postings[index];
@@ -151,18 +130,14 @@ function Posting({ children, filePath }) {
       postCommentRef.current.click();
     }
   }
-
   function handlePostPending(event, id) {
     event.preventDefault();
     const confirmed = window.confirm("Bạn có chắc chắn muốn gửi bài này?");
-    console.log(id)
     if (confirmed) {
       axios
         .put(
           `http://localhost:3000/posts/confirm/${id}`,
-          {
-            status: "pending",
-          },
+          { status: "pending" },
           {
             headers: {
               "Content-Type": "application/json",
@@ -175,7 +150,7 @@ function Posting({ children, filePath }) {
             position: "top-right",
             heading: "Done",
           });
-          setRefresh(!refresh); // đổi giá trị của refresh để gọi lại useEffect
+          setIsPendingUpdated((prev) => !prev);
         })
         .catch((error) => {
           toastr.error("post fail", {
@@ -186,6 +161,7 @@ function Posting({ children, filePath }) {
         });
     }
   }
+
 
   function handlePostRejct(event, id) {
     event.preventDefault();
@@ -203,6 +179,7 @@ function Posting({ children, filePath }) {
             position: "top-right",
             heading: "Done",
           });
+          setIsPendingUpdated((prev) => !prev);
         })
         .catch((error) => {
           toastr.error("delete fail", {
@@ -269,7 +246,6 @@ function Posting({ children, filePath }) {
   const PostingPublic = <PublicOutlinedIcon style={{ color: "green" }} />;
 
   const [pointScore, setPointScore] = useState("")
-  console.log(pointScore)
   const [loading, setLoading] = useState(false);
 
   const handleSubmitPoint = async (event) => {
@@ -409,6 +385,8 @@ function Posting({ children, filePath }) {
                           </div>
                         </div>
                         <span className="fs-6 posting-list__color-text my-2 d-block">
+                          {/* {post?.description} */}
+                          {/* {setSelectedPost(post?.description)} */}
                           {post?.description}
                         </span>
                         <img
@@ -448,20 +426,20 @@ function Posting({ children, filePath }) {
                           >
                             <BottomNavigationAction
                               icon={
-                                isLiked?.filter(
-                                  (f) => f?.post?._id === post?._id
-                                )?.length > 0 ? (
+                                isLiked
+                                  ?.filter((f) => f?.post?._id === post?._id)
+                                  .filter((f) => f?.user?._id === userPostings?.id)?.length > 0 ? (
                                   <FavoriteIcon sx={{ color: "#ec2d4d" }} />
                                 ) : (
                                   <FavoriteIcon sx={{ color: "black" }} />
                                 )
                               }
-                              onClick={(event) => handleLike(event, post?._id)}
-                            />
-                            <BottomNavigationAction
-                              icon={<DeleteIcon sx={{ color: "black  " }} />}
                               onClick={(event) =>
-                                handleDisLike(event, post?._id)
+                                isLiked
+                                  ?.filter((f) => f?.post?._id === post?._id)
+                                  .filter((f) => f?.user?._id === userPostings?.id)?.length > 0
+                                  ? handleDisLike(event, post?._id)
+                                  : handleLike(event, post?._id)
                               }
                             />
                             <div style={{ display: "flex" }}>
@@ -474,6 +452,7 @@ function Posting({ children, filePath }) {
                               </Button>
                               <PostComment ref={postCommentRef} />
                             </div>
+                            <PostComment />
                           </BottomNavigation>
                         </Box>
                       </div>
@@ -539,20 +518,21 @@ function Posting({ children, filePath }) {
                             <Typography
                               component="h2"
                               id="modal-title"
-                              level="h4"
-                              textColor="inherit"
+                              level="h1"
                               fontWeight="lg"
                               mb={1}
+                              className="text-center fs-3"
+                              style={{ 'fontWeight': 500, }}
                             >
-                              This is the modal title
+                              Deposit method
                             </Typography>
                             <div className="text-center d-block">
-                              <img src="https://cdn.britannica.com/17/155017-050-9AC96FC8/Example-QR-code.jpg" style={{ 'width': 320, 'height': 320, 'objectFit': 'cover' }} />
+                              <img src="https://cdn.britannica.com/17/155017-050-9AC96FC8/Example-QR-code.jpg" style={{ 'width': 320, 'height': 320, 'objectFit': 'cover', 'marginBottom': "10px" }} />
                             </div>
 
-                            <span className="m-3 text-dark" style={{ 'fontSize': 14 }}>
+                            <span className=" text-dark" style={{ 'fontSize': 14 }}>
                               {/* <DnsOutlinedIcon style={{ color: "#b48845" }} /> */}
-                              Transfer Contents
+                              <ContentPasteIcon style={{ "color": "#b48845", 'fontSize': 17 }} />  Transfer Contents
                             </span>
                             <Textarea
                               name="Plain"
@@ -562,9 +542,9 @@ function Posting({ children, filePath }) {
                               readOnly={true} style={{ 'fontSize': 14 }}
                             />
 
-                            <span className="m-3 text-dark" style={{ 'fontSize': 14 }}>
+                            <span className="text-dark" style={{ 'fontSize': 14 }}>
                               {/* <DnsOutlinedIcon style={{ color: "#b48845" }} /> */}
-                              Point
+                              <CurrencyExchangeIcon style={{ "color": "#b48845", 'fontSize': 17 }} />   Point
                             </span>
                             <Textarea
                               name="Plain"
@@ -574,7 +554,7 @@ function Posting({ children, filePath }) {
                               onChange={(e) => setPointScore(e.target.value)}
                               className="shadow-sm rounded-3 mb-1" style={{ 'fontSize': 14 }}
                             />
-                            <span className=" mt-3 text-dark" style={{ 'fontSize': 14 }}>
+                            <span className=" mt-3" style={{ 'fontSize': 14, "color": "#b48845" }}>
                               {/* <DnsOutlinedIcon style={{ color: "#b48845" }} /> */}
                               1D = 1000VND
                             </span>

@@ -23,6 +23,10 @@ import PostMoal1 from "./PostMoal1";
 import PostModal2 from "./PostModal2";
 import PostModal3 from "./PostModal3"
 import PostModal4 from "./PostModal4"
+import { useContext } from "react";
+import { DataContext } from "../DataContext";
+import { AuthContext } from "../../components/context/AuthContext";
+
 const StyledModal = styled(Modal)({
   display: "flex",
   alignItems: "center",
@@ -58,55 +62,58 @@ const PostModal = () => {
   const [buildingId, setBuildingId] = useState("");
 
   const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const token = JSON.parse(localStorage.getItem("access_token"));
-    if (!token) {
-      console.log("No access token found.");
-      return;
-    }
-    var formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("buildings", buildingId);
-    formData.append("rooms", room);
-    formData.append("img", selectedFile);
-    let isMounted = true;
-
-    try {
+  // const { isPendingUpdated, setIsPendingUpdated } = useContext(DataContext);
+  const { setIsPendingUpdated } = useContext(AuthContext); 
+    const handleSubmit = (event) => {
+      event.preventDefault();
+      const token = JSON.parse(localStorage.getItem("access_token"));
+      if (!token) {
+        console.log("No access token found.");
+        return;
+      }
+      var formData = new FormData();
+      formData.append("title", title);
+      formData.append("description", description);
+      formData.append("buildings", buildingId);
+      formData.append("rooms", room);
+      formData.append("img", selectedFile);
+      let isMounted = true;
+    
       setLoading(true);
-      const response = await axios.post(
-        "http://localhost:3000/posts/create",
-        formData,
-        {
+    
+      axios
+        .post("http://localhost:3000/posts/create", formData, {
           headers: {
             Authorization: `Bearer ${token.data.accessToken}`,
             "Content-Type": "multipart/form-data",
           },
-        }
-      );
-      toastr.success("Post successfully", {
-        position: "top-right",
-        heading: "Done",
-      });
-      if (isMounted) {
-        console.log(response.data);
-        setOpen(false);
-      }
-    } catch (error) {
-      toastr.error("Can not post", {
-        position: "top-right",
-        heading: "Done",
-      });
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-    return () => {
-      isMounted = false;
+        })
+        .then((response) => {
+          toastr.success("Post successfully", {
+            position: "top-right",
+            heading: "Done",
+          });
+          if (isMounted) {
+            setOpen(false);
+          }
+          setIsPendingUpdated((prev) => !prev);
+        })
+        .catch((error) => {
+          toastr.error("Can not post", {
+            position: "top-right",
+            heading: "Done",
+          });
+          console.error(error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    
+      return () => {
+        isMounted = false;
+      };
     };
-  };
+    
   const handleDelete = () => {
     setSelectedFile(null);
     setShowDeleteButton(false);
@@ -145,31 +152,31 @@ const PostModal = () => {
   const handleNext = () => {
     setCurrentComponent((prevComponent) => prevComponent + 1);
   };
-const handleBack = () => {
+  const handleBack = () => {
     setCurrentComponent((prevComponent) => prevComponent - 1);
   };
 
   let componentToRender;
-    // let showNextButton = false;
-    // let showBackButton = false;
+  // let showNextButton = false;
+  // let showBackButton = false;
 
   switch (currentComponent) {
     case 1:
-      componentToRender = <PostMoal1 onNext={handleNext}/>;
+      componentToRender = <PostMoal1 onNext={handleNext} />;
       // showNextButton = true;
       break;
     case 2:
-      componentToRender = <PostModal2 onNext={handleNext}  onBack= {handleBack}/>;
+      componentToRender = <PostModal2 onNext={handleNext} onBack={handleBack} />;
       // showNextButton = true;
       // showBackButton = true;
       break;
     case 3:
-      componentToRender = <PostModal3 onNext={handleNext}  onBack= {handleBack}/>;
+      componentToRender = <PostModal3 onNext={handleNext} onBack={handleBack} />;
       // showNextButton = true;
       // showBackButton = true;
       break;
     case 4:
-      componentToRender = <PostModal4  onBack= {handleBack}/>;
+      componentToRender = <PostModal4 onBack={handleBack} />;
       // showBackButton = true;
       break;
     default:

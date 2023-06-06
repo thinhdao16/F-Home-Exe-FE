@@ -9,14 +9,35 @@ import DashboardWrapper, {
 import Avatar from "react-avatar";
 import { Link } from "react-router-dom";
 import { CardContent, CardMedia, Typography, Card } from "@mui/material";
-import DraftsIcon from "@mui/icons-material/Drafts";
 import PendingIcon from "@mui/icons-material/Pending";
 import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
-import PublicOutlinedIcon from "@mui/icons-material/PublicOutlined";
-import ThumbDownAltOutlinedIcon from "@mui/icons-material/ThumbDownAltOutlined";
 import CropIcon from "@mui/icons-material/Crop";
 import RoofingOutlinedIcon from "@mui/icons-material/RoofingOutlined";
 import PriceChangeOutlinedIcon from "@mui/icons-material/PriceChangeOutlined";
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import { AuthContext } from "../../components/context/AuthContext";
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
+function createData(
+  name,
+  calories,
+  fat,
+  carbs,
+  protein,
+) {
+  return { name, calories, fat, carbs, protein };
+}
+
+const rows = [
+  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+];
+
 function PostingWait() {
   const styleStatus = {
     display: "inline-block",
@@ -39,29 +60,60 @@ function PostingWait() {
   const userPosting = JSON.parse(localStorage.getItem("access_token"));
   const userPostings = userPosting?.data?.user;
   const [refresh, setRefresh] = useState(false); // thêm state để xác định trạng thái của nút "Làm mới"
-
-  const fetchPosts = async () => {
-    try {
-      const response = await axios.get("http://localhost:3000/posts/", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${userPosting.data.accessToken}`,
-        },
-      });
-      setPosting(response.data.data?.postings);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const [pointUser, setPointUser] = useState([])
+  const { setIsPendingUpdated, isPendingUpdated } = useContext(AuthContext)
 
   useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/posts/", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userPosting.data.accessToken}`,
+          },
+        });
+        setPosting(response.data.data?.postings);
+        const responsePoint = await axios.get('http://localhost:3000/getformpoint', {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userPosting.data.accessToken}`,
+          },
+        });
+        const data = responsePoint?.data?.data?.point;
+        setPointUser(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
     fetchPosts();
-  }, [refresh]); // thêm refresh vào dependency array để khi giá trị của refresh thay đổi thì useEffect sẽ chạy lại
+  }, [isPendingUpdated])
 
-  const handleRefresh = () => {
-    setRefresh(!refresh); // đổi giá trị của refresh để gọi lại useEffect
+  const handleApproved = (id) => {
+    const confirmed = window.confirm("Bạn có chắc chắn muốn gửi bài này?");
+    if (confirmed) {
+      fetch(`http://localhost:3000/deleteformpoint/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userPosting.data.accessToken}`,
+        },
+        body: JSON.stringify({
+          status: "approved"
+        }),
+      })
+        .then((res) => res.json())
+        .then((response) => {
+          toastr.success("Successfully you wait pls", {
+            position: "top-right",
+            heading: "Done",
+          });
+          setIsPendingUpdated((prev) => !prev);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
   };
-
   const arrPostPeding = useMemo(() => {
     if (!posting) return [];
 
@@ -71,7 +123,6 @@ function PostingWait() {
         posting?.userPosting?._id === userPostings?.id
     );
   }, [posting]);
-  console.log(arrPostPeding);
   const arrPostApprove = useMemo(() => {
     if (!posting) return [];
 
@@ -85,69 +136,46 @@ function PostingWait() {
     <div className="posting-list">
       <DashboardWrapper>
         <DashboardWrapperMain>
-          {Array.isArray(arrPostApprove) &&
-            arrPostApprove
-              .sort((a, b) => {
-                return (
-                  new Date(b?.updatedAt).getTime() -
-                  new Date(a?.updatedAt).getTime()
-                );
-              })
-              .map((post) => (
-                <form className="mt-3">
-                  <div className="card p-3 shadow-sm bg-body rounded-3 border-0">
-                    <div className="row">
-                      <div className="col-md-1">
-                        <Avatar
-                          name={post?.userPosting?.fullname}
-                          size="40"
-                          round={true}
-                          src={post?.userPosting?.img}
-                        />
-                      </div>
-                      <div className="col-md-11">
-                        <div>
-                          <span className="posting-list__titleName">
-                            {post?.userPosting?.fullname}
-                          </span>
-                          <span className="posting-list__titleName__date">
-                            {new Date(post?.updatedAt).toLocaleString()}
-                          </span>
-                          <span className="ms-2">
-                            {post.status === "approved" && PostingAprove}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <span className="fs-6 posting-list__color-text mt-2 ms-2 d-block fw-bolder">
-                      {post?.title}
-                    </span>
-                    <div className="row text-dark">
-                      <div className="col-md-4 text-center">
-                        <CropIcon style={{ color: "#b48845" }} />{" "}
-                        {post?.rooms?.size}
-                      </div>
-                      <div className="col-md-4 text-center">
-                        {" "}
-                        <RoofingOutlinedIcon
-                          style={{ color: "#b48845" }}
-                        />{" "}
-                        {post?.buildings?.buildingName}
-                      </div>
-                      <div className="col-md-4 text-center">
-                        <PriceChangeOutlinedIcon style={{ color: "#b48845" }} />
-                        {post?.rooms?.price}{" "}
-                      </div>
-                    </div>
-                    <span className="fs-6 posting-list__color-text my-2 ms-2 d-block">
-                      {post?.description}
-                    </span>
-                    <img className="rounded-3 mt-3" src={post?.img} alt="" />
-                    <div className=" mx-4 my-2 "></div>
-                    <hr className="posting-list__hr" />
-                  </div>
-                </form>
-              ))}
+          <form className="mt-3">
+            <div className="card p-3 shadow-sm bg-body rounded-3 border-0">
+              <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>	Transfer Contents</TableCell>
+                      <TableCell align="center">Point</TableCell>
+                      <TableCell align="center">Date</TableCell>
+                      <TableCell align="center">Progess</TableCell>
+                      <TableCell align="center">Confirm</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {pointUser.map((row) => (
+                      <TableRow
+                        key={row?.user?.email}
+                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                      >
+                        <TableCell component="th" scope="row">
+                          {row?.user?.email}
+                        </TableCell>
+                        <TableCell align="center">{row?.point}</TableCell>
+                        <TableCell align="center"> {new Date(row?.updatedAt).toLocaleString()}</TableCell>
+                        <TableCell align="center"> <CircularProgress style={{'height':25, "width":25, 'color':"#b48845"}} /></TableCell>
+                        <TableCell align="center">   <button
+                          type="button"
+                          className="btn btn-danger btn-sm"
+                          onClick={() => handleApproved(row?._id)}
+                        >
+                          Delete
+                        </button></TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+
+            </div>
+          </form>
         </DashboardWrapperMain>
         <DashboardWrapperRight>
           <div className="card border-0 mb-4  ">
@@ -171,7 +199,7 @@ function PostingWait() {
                   </Link>
                   <span
                     className="posting-list__titleName__date"
-                    onClick={handleRefresh}
+                  // onClick={handleRefresh}
                   >
                     user
                   </span>

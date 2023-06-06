@@ -9,7 +9,8 @@ import {
 import { auth } from "../context/firebase";
 import axios from "axios";
 import { DataContext } from "../../pages/DataContext";
-// const AuthContext = createContext();
+
+export const AuthContext = createContext(); // Tạo AuthContext
 
 export function AuthContextProvider({ children }) {
   const [user, setUser] = useState({});
@@ -22,7 +23,9 @@ export function AuthContextProvider({ children }) {
   const [allCmt, setAllCmt] = useState([])
   const [isLiked, setIsLiked] = useState([]);
   const [chooseWant, setChooseWant] = useState([])
-  const [point, setPoint]= useState([])
+  const [point, setPoint] = useState([])
+  const [isPendingUpdated, setIsPendingUpdated] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null)
   const googleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
@@ -31,11 +34,13 @@ export function AuthContextProvider({ children }) {
     setAccessToken(token);
     setUser(user);
   };
+
   const logOut = () => {
     signOut(auth);
     localStorage.clear();
     window.location.reload();
   };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -45,14 +50,16 @@ export function AuthContextProvider({ children }) {
         });
       }
     });
+
     return () => {
       unsubscribe();
     };
   }, [user]);
+
   useEffect(() => {
     const storedBuildings = JSON.parse(localStorage.getItem("buildings"));
     const storedApartments = JSON.parse(localStorage.getItem("account_start"));
-    const storedRooms = JSON.parse(localStorage.getItem("show_rooms"));
+
     if (storedBuildings) {
       setBuildings(storedBuildings);
     } else {
@@ -83,29 +90,35 @@ export function AuthContextProvider({ children }) {
   }, []);
 
   return (
-    <DataContext.Provider
-      value={{
-        googleSignIn,
-        logOut,
-        user,
-        accessToken,
-        buildingsData,
-        posting,
-        setPosting,
-        imgPostDraft,
-        setImgPostDraft,
-        allCmt,
-        setAllCmt,
-        isLiked,
-        setIsLiked,
-        chooseWant,
-        setChooseWant,
-        point,
-        setPoint,
-      }}
-    >
-      {children}
-    </DataContext.Provider>
+    <AuthContext.Provider value={{
+      setIsPendingUpdated, isPendingUpdated, selectedPost,
+      setSelectedPost,
+    }}>
+      <DataContext.Provider
+        value={{
+          googleSignIn,
+          logOut,
+          user,
+          accessToken,
+          buildingsData,
+          posting,
+          setPosting,
+          imgPostDraft,
+          setImgPostDraft,
+          allCmt,
+          setAllCmt,
+          isLiked,
+          setIsLiked,
+          chooseWant,
+          setChooseWant,
+          point,
+          setPoint,
+
+        }}
+      >
+        {children}
+      </DataContext.Provider>
+    </AuthContext.Provider>
   );
 }
 

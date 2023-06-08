@@ -63,7 +63,7 @@ const PostModal = () => {
 
   const [loading, setLoading] = useState(false);
   // const { isPendingUpdated, setIsPendingUpdated } = useContext(DataContext);
-  const { setIsPendingUpdated } = useContext(AuthContext); 
+  const { setIsPendingUpdated} = useContext(AuthContext); 
     const handleSubmit = (event) => {
       event.preventDefault();
       const token = JSON.parse(localStorage.getItem("access_token"));
@@ -82,7 +82,7 @@ const PostModal = () => {
       setLoading(true);
     
       axios
-        .post("http://localhost:3000/posts/create", formData, {
+        .post("https://f-home-be.vercel.app/posts/create", formData, {
           headers: {
             Authorization: `Bearer ${token.data.accessToken}`,
             "Content-Type": "multipart/form-data",
@@ -126,7 +126,7 @@ const PostModal = () => {
     const token = JSON.parse(localStorage.getItem("access_token"));
     const headers = { Authorization: `Bearer ${token.data.accessToken}` };
     axios
-      .get("http://localhost:3000/getRoomsByUserId", { headers })
+      .get("https://f-home-be.vercel.app/getRoomsByUserId", { headers })
       .then((response) => {
         const roomIds = response.data;
         if (roomIds) {

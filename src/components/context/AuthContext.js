@@ -64,7 +64,7 @@ export function AuthContextProvider({ children }) {
       setBuildings(storedBuildings);
     } else {
       axios
-        .get("http://localhost:3000/getBuildings")
+        .get("https://f-home-be.vercel.app/getBuildings")
         .then((response) => {
           setBuildings(response.data);
           localStorage.setItem("buildings", JSON.stringify(response.data));
@@ -74,25 +74,26 @@ export function AuthContextProvider({ children }) {
         });
     }
 
-    if (storedApartments) {
-      setAccountStart(storedApartments);
-    } else {
-      axios
-        .get("https://fhome-be.vercel.app/getUser")
-        .then((response) => {
-          setAccountStart(response.data);
-          localStorage.setItem("account_start", JSON.stringify(response.data));
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
+    // if (storedApartments) {
+    //   setAccountStart(storedApartments);
+    // } else {
+    //   axios
+    //     .get("https://fhome-be.vercel.app/getUser")
+    //     .then((response) => {
+    //       setAccountStart(response.data);
+    //       localStorage.setItem("account_start", JSON.stringify(response.data));
+    //     })
+    //     .catch((error) => {
+    //       console.log(error);
+    //     });
+    // }
   }, []);
 
   return (
     <AuthContext.Provider value={{
       setIsPendingUpdated, isPendingUpdated, selectedPost,
-      setSelectedPost,
+      setSelectedPost, point,
+      setPoint,
     }}>
       <DataContext.Provider
         value={{
@@ -111,9 +112,6 @@ export function AuthContextProvider({ children }) {
           setIsLiked,
           chooseWant,
           setChooseWant,
-          point,
-          setPoint,
-
         }}
       >
         {children}

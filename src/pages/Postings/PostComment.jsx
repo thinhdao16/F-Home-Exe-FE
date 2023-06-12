@@ -1,9 +1,4 @@
-import {
-  Avatar,
-  Button,
-  Modal,
-  styled,
-} from "@mui/material";
+import { Avatar, Button, Modal, styled } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import axios from "axios";
@@ -35,8 +30,6 @@ const UserBox = styled(Box)({
 const PostComment = () => {
   const [open, setOpen] = useState(false);
 
-  const handleClose = () => setOpen(false);
-
   const [success, setSuccess] = useState(false);
 
   const userPosting = JSON.parse(localStorage.getItem("access_token"));
@@ -52,8 +45,17 @@ const PostComment = () => {
   // console.log(comments)
   const [loading, setLoading] = useState(false);
 
-  const { setIsPendingUpdated, isPendingUpdated, selectedPost,
-    setSelectedPost, } = useContext(AuthContext);
+  const {
+    setIsPendingUpdated,
+    isPendingUpdated,
+    selectedPost,
+    setSelectedPost,
+    openModal,
+    setOpenModal,
+  } = useContext(AuthContext);
+
+  const handleClose = () => setOpen(false);
+
   // console.log(selectedPost)
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -66,7 +68,7 @@ const PostComment = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://f-home-be.vercel.app/postAllPostingCommentByPost",
+        "http://localhost:3000/postAllPostingCommentByPost",
         formData,
         {
           headers: {
@@ -78,7 +80,7 @@ const PostComment = () => {
 
       if (isMounted) {
         setOpen(false);
-        setIsPendingUpdated((prev) => !prev)
+        setIsPendingUpdated((prev) => !prev);
       }
       toastr.success("Comment successfully", {
         position: "top-right",
@@ -93,25 +95,25 @@ const PostComment = () => {
       isMounted = false;
     };
   };
-  useEffect(() => {
-    const fetchComments = async () => {
-      try {
-        const selectedPostComment = selectedPost._id;
-        const response = await axios.get(
-          `https://f-home-be.vercel.app/getAllPostingCommentByPost/${selectedPostComment}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token.data.accessToken}`,
-            },
-          }
-        );
-        setComments(response.data.data.postingComments);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchComments();
-  }, [isPendingUpdated]);
+  // useEffect(() => {
+  //   const fetchComments = async () => {
+  //     try {
+  //       const selectedPostComment = selectedPost._id;
+  //       const response = await axios.get(
+  //         `http://localhost:3000/getAllPostingCommentByPost/${selectedPostComment}`,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token.data.accessToken}`,
+  //           },
+  //         }
+  //       );
+  //       setComments(response.data.data.postingComments);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+  //   fetchComments();
+  // }, [isPendingUpdated]);
 
   const handleDelete = () => {
     setSelectedFile(null);
@@ -127,7 +129,6 @@ const PostComment = () => {
     return null;
   }
 
-
   return (
     <>
       <Button
@@ -136,7 +137,7 @@ const PostComment = () => {
         fullWidth={true}
         className="rounded-5 bg-light shadow-none text-secondary"
       >
-        Comment
+        Comments
       </Button>
       {/* Modal */}
       <StyledModal
@@ -233,7 +234,8 @@ const PostComment = () => {
                     </div>
                     <div className="col-md-4 text-center">
                       {" "}
-                      <RoofingOutlinedIcon /> {selectedPost?.buildings?.buildingName}
+                      <RoofingOutlinedIcon />{" "}
+                      {selectedPost?.buildings?.buildingName}
                     </div>
                     <div className="col-md-4 text-center">
                       <PriceChangeOutlinedIcon />
@@ -283,7 +285,10 @@ const PostComment = () => {
                                 {commentss?.description}
                               </span>
                             </div>
-                            <span className="d-block text-dark" style={{ fontSize: 12, marginLeft: 15 }}>
+                            <span
+                              className="d-block text-dark"
+                              style={{ fontSize: 12, marginLeft: 15 }}
+                            >
                               {new Date(commentss?.updatedAt).toLocaleString()}
                             </span>
                             <img
@@ -396,8 +401,7 @@ const PostComment = () => {
           </LoadingOverlay>
         </form>
       </StyledModal>
-
-      {success && setOpen(false)} {/* close the modal when success is true */}
+      {/* {success && setOpen(false)} */}
     </>
   );
 };

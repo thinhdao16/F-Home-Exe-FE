@@ -2,13 +2,13 @@ import { useContext, createContext, useEffect, useState } from "react";
 import {
   GoogleAuthProvider,
   signInWithPopup,
-  signInWithRedirect,
   signOut,
   onAuthStateChanged,
 } from "firebase/auth";
 import { auth } from "../context/firebase";
 import axios from "axios";
 import { DataContext } from "../../pages/DataContext";
+import toastr from "cogo-toast";
 
 export const AuthContext = createContext(); // Tạo AuthContext
 
@@ -26,6 +26,11 @@ export function AuthContextProvider({ children }) {
   const [point, setPoint] = useState([])
   const [isPendingUpdated, setIsPendingUpdated] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null)
+  const [userProfile, setUserProfile] = useState([])
+  const [openModal, setOpenModal] = useState(false)
+  const [reloadUserProfile, setReloadUserProfile] = useState(null)
+  const [postingPush, setPostingPush] = useState([]);
+
   const googleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
@@ -40,7 +45,64 @@ export function AuthContextProvider({ children }) {
     localStorage.clear();
     window.location.reload();
   };
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = JSON.parse(localStorage.getItem("access_token"))?.data;
+      try {
+        if (token) {
+          const response = await axios.get(
+            "http://localhost:3000/getAllFavourite",
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token.accessToken}`,
+              },
+            }
+          );
+          setIsLiked(response.data?.data?.favourite);
 
+          const responsePost = await axios.get("http://localhost:3000/posts/", {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token.accessToken}`,
+            },
+          });
+          setPostingPush(responsePost?.data?.data);
+
+          const responsePostComment = await axios.get(
+            "http://localhost:3000/allComment/",
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token.accessToken}`,
+              },
+            }
+          );
+          setAllCmt(responsePostComment?.data?.data?.postingComments);
+
+          const responsePoint = await axios.get(
+            `http://localhost:3000/users/${token?.user?.id}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token.accessToken}`,
+              },
+            }
+          );
+          setPoint(responsePoint?.data);
+        } else {
+          console.log("error")
+        }
+
+      } catch (error) {
+        toastr.error("Can not find post", {
+          position: "top-right",
+          heading: "Done",
+        });
+      }
+    };
+    fetchData();
+  }, [isPendingUpdated])
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -51,49 +113,59 @@ export function AuthContextProvider({ children }) {
       }
     });
 
+    const fetchData = async () => {
+      try {
+        const storedBuildings = JSON.parse(localStorage.getItem("buildings"));
+        const storedApartments = JSON.parse(localStorage.getItem("account_start"));
+        const token = JSON.parse(localStorage.getItem("access_token"))?.data;
+
+        if (storedBuildings) {
+          setBuildings(storedBuildings);
+        } else {
+          axios
+            .get("http://localhost:3000/getBuildings")
+            .then((response) => {
+              setBuildings(response.data);
+              localStorage.setItem("buildings", JSON.stringify(response.data));
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        }
+
+        if (token) {
+          const responseProfile = await axios.get(
+            `http://localhost:3000/userProfile/${token?.user?.id}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token?.accessToken}`,
+              },
+            }
+          );
+          setUserProfile(responseProfile?.data);
+        } else {
+          console.log("dont find user");
+        }
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+
+    fetchData();
+
     return () => {
       unsubscribe();
     };
-  }, [user]);
-
-  useEffect(() => {
-    const storedBuildings = JSON.parse(localStorage.getItem("buildings"));
-    const storedApartments = JSON.parse(localStorage.getItem("account_start"));
-
-    if (storedBuildings) {
-      setBuildings(storedBuildings);
-    } else {
-      axios
-        .get("https://f-home-be.vercel.app/getBuildings")
-        .then((response) => {
-          setBuildings(response.data);
-          localStorage.setItem("buildings", JSON.stringify(response.data));
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
-
-    // if (storedApartments) {
-    //   setAccountStart(storedApartments);
-    // } else {
-    //   axios
-    //     .get("https://fhome-be.vercel.app/getUser")
-    //     .then((response) => {
-    //       setAccountStart(response.data);
-    //       localStorage.setItem("account_start", JSON.stringify(response.data));
-    //     })
-    //     .catch((error) => {
-    //       console.log(error);
-    //     });
-    // }
-  }, []);
+  }, [reloadUserProfile]);
 
   return (
     <AuthContext.Provider value={{
       setIsPendingUpdated, isPendingUpdated, selectedPost,
       setSelectedPost, point,
-      setPoint,
+      setPoint, openModal,
+      setOpenModal,
+      userProfile, setUserProfile, reloadUserProfile, setReloadUserProfile, postingPush, setPostingPush
     }}>
       <DataContext.Provider
         value={{
@@ -112,6 +184,7 @@ export function AuthContextProvider({ children }) {
           setIsLiked,
           chooseWant,
           setChooseWant,
+
         }}
       >
         {children}

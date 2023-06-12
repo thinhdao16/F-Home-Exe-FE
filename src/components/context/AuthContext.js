@@ -51,7 +51,7 @@ export function AuthContextProvider({ children }) {
       try {
         if (token) {
           const response = await axios.get(
-            "http://localhost:3000/getAllFavourite",
+            "https://f-home-be.vercel.app/getAllFavourite",
             {
               headers: {
                 "Content-Type": "application/json",
@@ -61,7 +61,7 @@ export function AuthContextProvider({ children }) {
           );
           setIsLiked(response.data?.data?.favourite);
 
-          const responsePost = await axios.get("http://localhost:3000/posts/", {
+          const responsePost = await axios.get("https://f-home-be.vercel.app/posts/", {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token.accessToken}`,
@@ -70,7 +70,7 @@ export function AuthContextProvider({ children }) {
           setPostingPush(responsePost?.data?.data);
 
           const responsePostComment = await axios.get(
-            "http://localhost:3000/allComment/",
+            "https://f-home-be.vercel.app/allComment/",
             {
               headers: {
                 "Content-Type": "application/json",
@@ -81,7 +81,7 @@ export function AuthContextProvider({ children }) {
           setAllCmt(responsePostComment?.data?.data?.postingComments);
 
           const responsePoint = await axios.get(
-            `http://localhost:3000/users/${token?.user?.id}`,
+            `https://f-home-be.vercel.app/users/${token?.user?.id}`,
             {
               headers: {
                 "Content-Type": "application/json",
@@ -123,7 +123,7 @@ export function AuthContextProvider({ children }) {
           setBuildings(storedBuildings);
         } else {
           axios
-            .get("http://localhost:3000/getBuildings")
+            .get("https://f-home-be.vercel.app/getBuildings")
             .then((response) => {
               setBuildings(response.data);
               localStorage.setItem("buildings", JSON.stringify(response.data));
@@ -135,7 +135,7 @@ export function AuthContextProvider({ children }) {
 
         if (token) {
           const responseProfile = await axios.get(
-            `http://localhost:3000/userProfile/${token?.user?.id}`,
+            `https://f-home-be.vercel.app/userProfile/${token?.user?.id}`,
             {
               headers: {
                 "Content-Type": "application/json",

@@ -17,7 +17,6 @@ export function AuthContextProvider({ children }) {
   const [accessToken, setAccessToken] = useState("");
   const [buildings, setBuildings] = useState([]);
   const buildingsData = buildings.data;
-  const [accountStart, setAccountStart] = useState([]);
   const [posting, setPosting] = useState([]);
   const [imgPostDraft, setImgPostDraft] = useState(null)
   const [allCmt, setAllCmt] = useState([])
@@ -46,64 +45,6 @@ export function AuthContextProvider({ children }) {
     window.location.reload();
   };
   useEffect(() => {
-    const fetchData = async () => {
-      const token = JSON.parse(localStorage.getItem("access_token"))?.data;
-      try {
-        if (token) {
-          const response = await axios.get(
-            "https://f-home-be.vercel.app/getAllFavourite",
-            {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token.accessToken}`,
-              },
-            }
-          );
-          setIsLiked(response.data?.data?.favourite);
-
-          const responsePost = await axios.get("https://f-home-be.vercel.app/posts/", {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token.accessToken}`,
-            },
-          });
-          setPostingPush(responsePost?.data?.data);
-
-          const responsePostComment = await axios.get(
-            "https://f-home-be.vercel.app/allComment/",
-            {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token.accessToken}`,
-              },
-            }
-          );
-          setAllCmt(responsePostComment?.data?.data?.postingComments);
-
-          const responsePoint = await axios.get(
-            `https://f-home-be.vercel.app/users/${token?.user?.id}`,
-            {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token.accessToken}`,
-              },
-            }
-          );
-          setPoint(responsePoint?.data);
-        } else {
-          console.log("error")
-        }
-
-      } catch (error) {
-        toastr.error("Can not find post", {
-          position: "top-right",
-          heading: "Done",
-        });
-      }
-    };
-    fetchData();
-  }, [isPendingUpdated])
-  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser && currentUser.email) {
@@ -123,7 +64,7 @@ export function AuthContextProvider({ children }) {
           setBuildings(storedBuildings);
         } else {
           axios
-            .get("https://f-home-be.vercel.app/getBuildings")
+            .get("http://localhost:3000/getBuildings")
             .then((response) => {
               setBuildings(response.data);
               localStorage.setItem("buildings", JSON.stringify(response.data));
@@ -131,21 +72,6 @@ export function AuthContextProvider({ children }) {
             .catch((error) => {
               console.log(error);
             });
-        }
-
-        if (token) {
-          const responseProfile = await axios.get(
-            `https://f-home-be.vercel.app/userProfile/${token?.user?.id}`,
-            {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token?.accessToken}`,
-              },
-            }
-          );
-          setUserProfile(responseProfile?.data);
-        } else {
-          console.log("dont find user");
         }
       } catch (error) {
         console.log("error", error);
@@ -158,6 +84,7 @@ export function AuthContextProvider({ children }) {
       unsubscribe();
     };
   }, [reloadUserProfile]);
+
 
   return (
     <AuthContext.Provider value={{

@@ -60,16 +60,81 @@ const UserBox = styled(Box)({
 
 function Posting({ children, filePath }) {
   const [success, setSuccess] = useState(false);
-
   const [open, setOpen] = useState(false);
   const userPosting = JSON.parse(localStorage.getItem("access_token"));
   const userPostings = userPosting?.data?.user;
-  const { allCmt, isLiked } =
+  const { allCmt, isLiked, setAllCmt ,setIsLiked} =
     useContext(DataContext);
-  const { setIsPendingUpdated, point, userProfile ,postingPush,} =
+  const { setIsPendingUpdated, point, userProfile, postingPush, setPoint, setPostingPush, isPendingUpdated, setUserProfile } =
     useContext(AuthContext);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/getAllFavourite", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userPosting.data.accessToken}`,
+          },
+        });
+        setIsLiked(response.data?.data?.favourite);
 
-  ;
+        const responsePost = await axios.get("http://localhost:3000/posts/", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userPosting.data.accessToken}`,
+          },
+        });
+        setPostingPush(responsePost?.data?.data);
+
+        const responsePostComment = await axios.get("http://localhost:3000/allComment/", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userPosting.data.accessToken}`,
+          },
+        });
+        setAllCmt(responsePostComment?.data?.data?.postingComments);
+
+        const responsePoint = await axios.get(`http://localhost:3000/users/${userPostings.id}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userPosting.data.accessToken}`,
+          },
+        });
+        setPoint(responsePoint?.data);
+        const responseProfile = await axios.get(
+          `http://localhost:3000/userProfile/${userPostings?.id}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${userPostings.data?.accessToken}`,
+            },
+          }
+        );
+        setUserProfile(responseProfile?.data);
+      } catch (error) {
+        if (error.response) {
+          // Request was made and server responded with a non-2xx status code
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+        } else if (error.request) {
+          // Request was made but no response was received
+          console.log(error.request);
+        } else {
+          // Something else happened while setting up the request
+          console.log("Error", error.message);
+        }
+        toastr.error("Can not find post", {
+          position: "top-right",
+          heading: "Done",
+        });
+      }
+    };
+    fetchData();
+  }, [isPendingUpdated]);
+
+
+
   const arrPostPublish = useMemo(() => {
     if (!postingPush) return [];
     return postingPush?.postings?.filter(
@@ -95,7 +160,7 @@ function Posting({ children, filePath }) {
       if (point?.point > 0) {
         axios
           .put(
-            `https://f-home-be.vercel.app/posts/confirm/${id}`,
+            `http://localhost:3000/posts/confirm/${id}`,
             { status: "pending" },
             {
               headers: {
@@ -132,7 +197,7 @@ function Posting({ children, filePath }) {
 
     if (window.confirm("Bạn có chắc muốn reject post này không?")) {
       axios
-        .delete(`https://f-home-be.vercel.app/posts/delete/${id}`, {
+        .delete(`http://localhost:3000/posts/delete/${id}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${userPosting.data.accessToken}`,
@@ -158,7 +223,7 @@ function Posting({ children, filePath }) {
     event.preventDefault();
     axios
       .post(
-        "https://f-home-be.vercel.app/createFavouritePost",
+        "http://localhost:3000/createFavouritePost",
         { postId: id },
         {
           headers: {
@@ -179,7 +244,7 @@ function Posting({ children, filePath }) {
     const idLike = isLiked?.filter((like) => like?.post?._id === id)?.[0]._id;
     event.preventDefault();
     axios
-      .delete(`https://f-home-be.vercel.app/deleteFavouritePost/${idLike}`, {
+      .delete(`http://localhost:3000/deleteFavouritePost/${idLike}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${userPosting.data.accessToken}`,
@@ -227,7 +292,7 @@ function Posting({ children, filePath }) {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://f-home-be.vercel.app/postformpoint",
+        "http://localhost:3000/postformpoint",
         { point: pointScore },
         {
           headers: {
@@ -281,7 +346,7 @@ function Posting({ children, filePath }) {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://f-home-be.vercel.app/postAllPostingCommentByPost",
+        "http://localhost:3000/postAllPostingCommentByPost",
         formData,
         {
           headers: {
@@ -318,7 +383,7 @@ function Posting({ children, filePath }) {
 
     try {
       const response = await axios.get(
-        `https://f-home-be.vercel.app/getAllPostingCommentByPost/${id}`,
+        `http://localhost:3000/getAllPostingCommentByPost/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token.data.accessToken}`,
@@ -1107,10 +1172,10 @@ export default Posting;
 // });
 // const arrPost = useMemo(() => dataPosting?.postings, [dataPosting]);
 // const responses = await Promise.all([
-//   axios.get("https://f-home-be.vercel.app/getBuildings"),
-//   axios.get("https://f-home-be.vercel.app/getAllStatus"),
-//   axios.get("https://f-home-be.vercel.app/getRooms"),
-//   axios.get("https://f-home-be.vercel.app/getAllUsers"),
+//   axios.get("http://localhost:3000/getBuildings"),
+//   axios.get("http://localhost:3000/getAllStatus"),
+//   axios.get("http://localhost:3000/getRooms"),
+//   axios.get("http://localhost:3000/getAllUsers"),
 // ]);
 // const buildings = responses[0].data.data.buildings;
 // const postings = responses[1].data.data.postings;
@@ -1156,7 +1221,7 @@ export default Posting;
 
 // // Get favorites
 // const response = await axios.get(
-//   "https://f-home-be.vercel.app/getFavouriteByUser",
+//   "http://localhost:3000/getFavouriteByUser",
 //   {
 //     headers: {
 //       "Content-Type": "application/json",

@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import GoogleButton from "react-google-button";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "../../components/context/AuthContext";
-import { auth } from "../../components/context/firebase";
+import { auth  } from "../../components/context/firebase";
 import clientId from "./client_secret_624291541261-vsnpuqvrn48tah5ju43l048ug23a3hre.apps.googleusercontent.com.json";
 import axios from "axios";
 import { DataContext } from "../DataContext";

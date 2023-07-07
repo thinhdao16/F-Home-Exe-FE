@@ -14,29 +14,15 @@ import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutli
 import CropIcon from "@mui/icons-material/Crop";
 import RoofingOutlinedIcon from "@mui/icons-material/RoofingOutlined";
 import PriceChangeOutlinedIcon from "@mui/icons-material/PriceChangeOutlined";
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
 import { AuthContext } from "../../components/context/AuthContext";
-import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box';
-function createData(
-  name,
-  calories,
-  fat,
-  carbs,
-  protein,
-) {
-  return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-];
+import { Space, Tag } from "antd";
 
 function PostingWait() {
   const styleStatus = {
@@ -53,15 +39,13 @@ function PostingWait() {
     marginLeft: 13,
   };
   const PostingPending = <PendingIcon style={{ color: "blue" }} />;
-  const PostingAprove = (
-    <CheckCircleOutlineOutlinedIcon style={{ color: "violet" }} />
-  );
   const [posting, setPosting] = useState([]);
   const userPosting = JSON.parse(localStorage.getItem("access_token"));
   const userPostings = userPosting?.data?.user;
   const [refresh, setRefresh] = useState(false); // thêm state để xác định trạng thái của nút "Làm mới"
-  const [pointUser, setPointUser] = useState([])
-  const { setIsPendingUpdated, isPendingUpdated } = useContext(AuthContext)
+  const [pointUser, setPointUser] = useState([]);
+  console.log(pointUser);
+  const { setIsPendingUpdated, isPendingUpdated } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -73,12 +57,15 @@ function PostingWait() {
           },
         });
         setPosting(response.data.data?.postings);
-        const responsePoint = await axios.get('http://localhost:3000/getformpoint', {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${userPosting.data.accessToken}`,
-          },
-        });
+        const responsePoint = await axios.get(
+          "http://localhost:3000/getformpoint",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${userPosting.data.accessToken}`,
+            },
+          }
+        );
         const data = responsePoint?.data?.data?.point;
         setPointUser(data);
       } catch (error) {
@@ -86,19 +73,19 @@ function PostingWait() {
       }
     };
     fetchPosts();
-  }, [isPendingUpdated])
+  }, [isPendingUpdated]);
 
   const handleApproved = (id) => {
     const confirmed = window.confirm("Bạn có chắc chắn muốn gửi bài này?");
     if (confirmed) {
       fetch(`http://localhost:3000/deleteformpoint/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${userPosting.data.accessToken}`,
         },
         body: JSON.stringify({
-          status: "approved"
+          status: "approved",
         }),
       })
         .then((res) => res.json())
@@ -123,26 +110,37 @@ function PostingWait() {
         posting?.userPosting?._id === userPostings?.id
     );
   }, [posting]);
-  const arrPostApprove = useMemo(() => {
-    if (!posting) return [];
+  const arrPoint = useMemo(() => {
+    if (!pointUser) return [];
 
-    return posting?.filter(
-      (posting) =>
-        posting?.status === "approved" &&
-        posting?.userPosting?._id === userPostings?.id
+    return pointUser?.filter(
+      (point) =>
+        point?.user?._id === userPostings?.id
     );
-  }, [posting]);
+  }, [pointUser]);
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "pending":
+        return "gold";
+      case "rejected":
+        return "magenta";
+      case "approved":
+        return "green";
+      default:
+        return "";
+    }
+  };
   return (
     <div className="posting-list">
       <DashboardWrapper>
-        <DashboardWrapperMain>
+        <DashboardWrapperMain className="bg-white">
           <form className="mt-3">
             <div className="card p-3 shadow-sm bg-body rounded-3 border-0">
               <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                   <TableHead>
                     <TableRow>
-                      <TableCell>	Transfer Contents</TableCell>
+                      <TableCell> Transfer Contents</TableCell>
                       <TableCell align="center">Point</TableCell>
                       <TableCell align="center">Date</TableCell>
                       <TableCell align="center">Progess</TableCell>
@@ -150,32 +148,61 @@ function PostingWait() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {pointUser.map((row) => (
-                      <TableRow
-                        key={row?.user?.email}
-                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                      >
-                        <TableCell component="th" scope="row">
-                          {row?.user?.email}
-                        </TableCell>
-                        <TableCell align="center">{row?.point}</TableCell>
-                        <TableCell align="center"> {new Date(row?.updatedAt).toLocaleString()}</TableCell>
-                        <TableCell align="center"> <CircularProgress style={{'height':25, "width":25, 'color':"#b48845"}} /></TableCell>
-                        <TableCell align="center">   <button
-                          type="button"
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleApproved(row?._id)}
-                        >
-                          Delete
-                        </button></TableCell>
-                      </TableRow>
-                    ))}
+                    {arrPoint &&
+                      arrPoint
+                        .sort((a, b) => {
+                          return (
+                            new Date(b?.updatedAt).getTime() -
+                            new Date(a?.updatedAt).getTime()
+                          );
+                        })
+                        .map((row) => (
+                          <TableRow
+                            key={row?.user?.email}
+                            sx={{
+                              "&:last-child td, &:last-child th": { border: 0 },
+                            }}
+                          >
+                            <TableCell component="th" scope="row">
+                              {row?.user?.email}
+                            </TableCell>
+                            <TableCell align="center">{row?.point}</TableCell>
+                            <TableCell align="center">
+                              {" "}
+                              {new Date(row?.updatedAt).toLocaleString()}
+                            </TableCell>
+                            <TableCell align="center">
+                              {" "}
+                              {row?.status && (
+                                <Space>
+                                  <Tag color={getStatusColor(row.status)}>
+                                    {row.status}
+                                  </Tag>
+                                </Space>
+                              )}
+                            </TableCell>
+                            <TableCell align="center">
+                              {" "}
+                              {row?.status === "pending" && (
+                                <button
+                                  type="button"
+                                  className="btn btn-danger btn-sm"
+                                  onClick={() => handleApproved(row?._id)}
+                                >
+                                  Delete
+                                </button>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
                   </TableBody>
                 </Table>
               </TableContainer>
-
             </div>
           </form>
+          {/* <form>
+            <Table columns={columns} dataSource={pointUser} />
+          </form> */}
         </DashboardWrapperMain>
         <DashboardWrapperRight>
           <div className="card border-0 mb-4  ">
@@ -199,7 +226,7 @@ function PostingWait() {
                   </Link>
                   <span
                     className="posting-list__titleName__date"
-                  // onClick={handleRefresh}
+                    // onClick={handleRefresh}
                   >
                     user
                   </span>

@@ -90,7 +90,7 @@ const Profile = () => {
     formData.append("img", newImage);
     try {
       const response = await axios.put(
-        `http://localhost:3000/userProfile/${userProfile?._id}`,
+        `https://f-home-be.vercel.app/userProfile/${userProfile?._id}`,
         formData,
         {
           headers: {
@@ -123,7 +123,7 @@ const Profile = () => {
     event.preventDefault();
     axios
       .post(
-        "http://localhost:3000/createFavouritePost",
+        "https://f-home-be.vercel.app/createFavouritePost",
         { postId: id },
         {
           headers: {
@@ -170,7 +170,7 @@ const Profile = () => {
     try {
       // setLoading(true);
       const response = await axios.post(
-        "http://localhost:3000/postAllPostingCommentByPost",
+        "https://f-home-be.vercel.app/postAllPostingCommentByPost",
         formData,
         {
           headers: {
@@ -207,7 +207,7 @@ const Profile = () => {
 
     try {
       const response = await axios.get(
-        `http://localhost:3000/getAllPostingCommentByPost/${id}`,
+        `https://f-home-be.vercel.app/getAllPostingCommentByPost/${id}`,
         {
           headers: {
             Authorization: `Bearer ${userProfileToken.accessToken}`,
@@ -234,7 +234,7 @@ const Profile = () => {
     const idLike = isLiked?.filter((like) => like?.post?._id === id)?.[0]._id;
     event.preventDefault();
     axios
-      .delete(`http://localhost:3000/deleteFavouritePost/${idLike}`, {
+      .delete(`https://f-home-be.vercel.app/deleteFavouritePost/${idLike}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${userProfileToken.accessToken}`,

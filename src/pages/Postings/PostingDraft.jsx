@@ -80,7 +80,7 @@ const PostingDarft = () => {
 
     try {
       const response = await axios.post(
-        "https://f-home-be.vercel.app/createPosting",
+        "f-home-be.vercel.app/createPosting",
         formData,
         {
           headers: {
@@ -120,7 +120,7 @@ const PostingDarft = () => {
     const token = JSON.parse(localStorage.getItem("access_token"));
     const headers = { Authorization: `Bearer ${token.data.accessToken}` };
     axios
-      .get("https://f-home-be.vercel.app/getRoomsByUserId", { headers })
+      .get("f-home-be.vercel.app/getRoomsByUserId", { headers })
       .then((response) => {
         const roomIds = response.data;
         if (roomIds) {

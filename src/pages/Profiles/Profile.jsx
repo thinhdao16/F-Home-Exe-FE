@@ -90,7 +90,7 @@ const Profile = () => {
     formData.append("img", newImage);
     try {
       const response = await axios.put(
-        `https://f-home-be.vercel.app/userProfile/${userProfile?._id}`,
+        `f-home-be.vercel.app/userProfile/${userProfile?._id}`,
         formData,
         {
           headers: {
@@ -99,7 +99,7 @@ const Profile = () => {
           },
         }
       );
-      // setReloadUserProfile((prev) => !prev)
+      // setReloadUserProfi le((prev) => !prev)
       toastr.success("Update successfully", {
         position: "top-right",
         heading: "Done",
@@ -123,7 +123,7 @@ const Profile = () => {
     event.preventDefault();
     axios
       .post(
-        "https://f-home-be.vercel.app/createFavouritePost",
+        "f-home-be.vercel.app/createFavouritePost",
         { postId: id },
         {
           headers: {
@@ -170,7 +170,7 @@ const Profile = () => {
     try {
       // setLoading(true);
       const response = await axios.post(
-        "https://f-home-be.vercel.app/postAllPostingCommentByPost",
+        "f-home-be.vercel.app/postAllPostingCommentByPost",
         formData,
         {
           headers: {
@@ -207,7 +207,7 @@ const Profile = () => {
 
     try {
       const response = await axios.get(
-        `https://f-home-be.vercel.app/getAllPostingCommentByPost/${id}`,
+        `f-home-be.vercel.app/getAllPostingCommentByPost/${id}`,
         {
           headers: {
             Authorization: `Bearer ${userProfileToken.accessToken}`,
@@ -234,7 +234,7 @@ const Profile = () => {
     const idLike = isLiked?.filter((like) => like?.post?._id === id)?.[0]._id;
     event.preventDefault();
     axios
-      .delete(`https://f-home-be.vercel.app/deleteFavouritePost/${idLike}`, {
+      .delete(`f-home-be.vercel.app/deleteFavouritePost/${idLike}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${userProfileToken.accessToken}`,

@@ -2,17 +2,32 @@ import "./login.scss";
 import React, { useContext, useEffect, useState } from "react";
 import GoogleButton from "react-google-button";
 import { Link, useNavigate } from "react-router-dom";
-import { auth  } from "../../components/context/firebase";
+import { auth } from "../../components/context/firebase";
 import clientId from "./client_secret_624291541261-vsnpuqvrn48tah5ju43l048ug23a3hre.apps.googleusercontent.com.json";
 import axios from "axios";
 import { DataContext } from "../DataContext";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import Loading from "react-fullscreen-loading";
+import { Textarea } from "@mui/joy";
+import ModalClose from "@mui/joy/ModalClose";
+import Sheet from "@mui/joy/Sheet";
+import Modal from "@mui/joy/Modal";
+import { Button, Typography } from "@mui/material";
+import Box from "@mui/material/Box";
+import ContentPasteIcon from "@mui/icons-material/ContentPaste";
+import Dropzone from "react-dropzone";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
+import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
+
 const Login = () => {
   const navigate = useNavigate();
   const { googleSignIn, accessToken } = useContext(DataContext);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [selectedFilePoint, setSelectedFilePoint] = useState(null);
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [description, setDescription] = useState("");
+  const [open, setOpen] = useState(false);
   const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true); // set loading to true before the API call
@@ -46,7 +61,6 @@ const Login = () => {
               );
               const token = JSON.parse(localStorage.getItem("access_token"));
 
-              
               const headers = {
                 Authorization: `Bearer ${token.data.accessToken}`,
               };
@@ -63,7 +77,7 @@ const Login = () => {
                 .catch((error) => {
                   console.error(error);
                 });
-                toast.success("Login successfully", {
+              toast.success("Login successfully", {
                 position: "top-right",
                 heading: "Done",
               });
@@ -122,11 +136,71 @@ const Login = () => {
       navigate("");
     }
   }, [navigate]);
+  const handleFileChangePoint = (acceptedFiles) => {
+    setSelectedFilePoint(acceptedFiles[0]);
+  };
 
+  const handleSubmitPoint = async (event) => {
+    event.preventDefault();
+    const localUser = localStorage.getItem("All_User");
+    const allUser = JSON.parse(localUser)
+  
+    // Kiểm tra xem email đã tồn tại trong dữ liệu hiện có hay không
+    const emailExists = allUser.some((user) => user.email === email);
+  
+    if (emailExists) {
+      var formData = new FormData();
+      formData.append("img", selectedFilePoint);
+      formData.append("email", email);
+      formData.append("fullname", fullName)
+      formData.append("description", description)
+      let isMounted = true;
+      try {
+        const response = await axios.post(
+          "https://f-home-be.vercel.app/postContract",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        toast.success("Post successfully", {
+          position: "top-right",
+          heading: "Done",
+        });
+  
+        setSelectedFilePoint(null);
+        setEmail("")
+        setFullName("")
+        setDescription("")
+        if (isMounted) {
+          console.log(response.data);
+          setOpen(false);
+        }
+      } catch (error) {
+        toast.warn("You have contract need admin accept", {
+          position: "top-right",
+          heading: "Error",
+        });
+      }
+    } else {
+      // Xử lý trường hợp email không tồn tại trong dữ liệu
+      // Ví dụ: Hiển thị thông báo lỗi
+      toast.error("Please login with google and back here", {
+        position: "top-right",
+        heading: "Error",
+      });
+      setOpen(false)
+    }
+  };
+  
   return (
     <div className="body">
       <>
-        {isLoading && <Loading loading background="#fff" loaderColor="#ff9066" />}
+        {isLoading && (
+          <Loading loading background="#fff" loaderColor="#ff9066" />
+        )}
         {/* Your component JSX goes here */}
       </>
       {/* <h1 id="site-logo">
@@ -182,9 +256,207 @@ const Login = () => {
           <button className="btn btn-primary" type="button">
             Log in
           </button>
-          <Link to="/linkto" relative="path" className="change-rtn-home">
+          <Link onClick={() => setOpen(true)} relative="path" className="change-rtn-home">
             Return To Home Page
           </Link>
+          <Modal
+            aria-labelledby="modal-title"
+            aria-describedby="modal-desc"
+            open={open}
+            onClose={() => setOpen(false)}
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <form onSubmit={handleSubmitPoint}>
+              <Sheet
+                variant="outlined"
+                sx={{
+                  minWidth: 500,
+                  borderRadius: "md",
+                  pl: 2,
+                  pr: 1,
+                  py: 3,
+                  "::-webkit-scrollbar": {
+                    display: "none",
+                  },
+                }}
+                style={{
+                  border: "none",
+                  "background-color": "white",
+                  boxShadow: "0 2px 12px 0 rgba(0 0 0 / 0.2)",
+                }}
+              >
+                <ModalClose
+                  variant="outlined"
+                  sx={{
+                    top: "calc(-1/4 * var(--IconButton-size))",
+                    right: "calc(-1/4 * var(--IconButton-size))",
+                    boxShadow: "0 2px 12px 0 rgba(0 0 0 / 0.2)",
+                    borderRadius: "50%",
+                    bgcolor: "background.body",
+                  }}
+                  style={{
+                    "background-color": "white",
+                    border: "none",
+                  }}
+                />
+                <Typography
+                  component="h2"
+                  id="modal-title"
+                  level="h1"
+                  fontWeight="lg"
+                  mb={1}
+                  className="text-center fs-3"
+                  style={{ fontWeight: 500 }}
+                >
+                  Deposit method
+                </Typography>
+                <Box
+                  style={{
+                    position: "relative",
+                    maxHeight: "430px",
+                    overflow: "auto",
+                    paddingRight: "3px",
+                  }}
+                  bgcolor="white"
+                  // borderRadius={5}
+                  sx={{
+                    "&::-webkit-scrollbar": {
+                      width: "8px",
+                    },
+                    "&::-webkit-scrollbar-track": {
+                      borderRadius: "10px",
+                      background: "rgba(0, 0, 0, 0.1)",
+                      border: "1px solid #ccc",
+                    },
+                    "&::-webkit-scrollbar-thumb": {
+                      borderRadius: "10px",
+                      background: "linear-gradient(left, #fff, #e4e4e4)",
+                      border: "1px solid #aaa",
+                    },
+                    "&::-webkit-scrollbar-thumb:hover": {
+                      background: "#fff",
+                    },
+                    "&::-webkit-scrollbar-thumb:active": {
+                      background: "linear-gradient(left, #22ADD4, #1E98BA)",
+                    },
+                  }}
+                >
+                  <span className=" text-dark" style={{ fontSize: 14 }}>
+                    <ContentPasteIcon
+                      style={{ color: "#b48845", fontSize: 17 }}
+                    />{" "}
+                    FullName
+                  </span>
+                  <Textarea
+                    name="Plain"
+                    variant="plain"
+                    className="shadow-sm rounded-3 mb-3 bg-white"
+                    placeholder="Transfer content ...  "
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    style={{ fontSize: 14 }}
+                  />
+                  <span className="text-dark" style={{ fontSize: 14 }}>
+                    <CurrencyExchangeIcon
+                      style={{ color: "#b48845", fontSize: 17 }}
+                    />{" "}
+                    Email
+                  </span>
+                  <Textarea
+                    name="Plain"
+                    placeholder="Point score..."
+                    variant="plain"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="shadow-sm rounded-3 mb-1"
+                    style={{ fontSize: 14 }}
+                  />
+                  <span className="text-dark" style={{ fontSize: 14 }}>
+                    <CurrencyExchangeIcon
+                      style={{ color: "#b48845", fontSize: 17 }}
+                    />{" "}
+                    Description
+                  </span>
+                  <Textarea
+                    name="Plain"
+                    placeholder="Point score..."
+                    variant="plain"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="shadow-sm rounded-3 mb-1"
+                    style={{ fontSize: 14 }}
+                  />
+                  {selectedFilePoint ? (
+                    <div>
+                      <img
+                        className="rounded-3 shadow"
+                        src={URL.createObjectURL(selectedFilePoint)}
+                        alt="preview"
+                        style={{
+                          width: 470,
+                          height: 470,
+                          objectFit: "cover",
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <span></span>
+                  )}
+                  <Dropzone onDrop={handleFileChangePoint} accept="image/*">
+                    {({ getRootProps, getInputProps }) => (
+                      <div
+                        {...getRootProps()}
+                        style={{
+                          border: "1px solid #e4e6eb",
+                          borderRadius: 8,
+                          marginBottom: 10,
+                          height: 57,
+                          marginTop: 10,
+                        }}
+                      >
+                        <input {...getInputProps()} />
+                        <p
+                          style={{
+                            fontSize: "0.875rem",
+                            fontWeight: 600,
+                            color: "#65676b",
+                            marginTop: 12,
+                            marginLeft: 16,
+                            fontWeight: 500,
+                          }}
+                        >
+                          <span className="text-dark">Thêm hình ảnh</span>
+                          <ImageOutlinedIcon
+                            style={{
+                              fontSize: "30px",
+                              color: "#6ab175",
+                              marginLeft: 50,
+                            }}
+                          />{" "}
+                        </p>
+                      </div>
+                    )}
+                  </Dropzone>
+                </Box>
+                <Button
+                  variant="contained"
+                  type="submit"
+                  style={{
+                    marginBottom: "12px",
+                    backgroundColor: "#b48845",
+                    display: "block",
+                    margin: "10px 0 0 0",
+                  }}
+                >
+                  Submit
+                </Button>
+              </Sheet>
+            </form>
+          </Modal>
         </div>
       </div>
     </div>

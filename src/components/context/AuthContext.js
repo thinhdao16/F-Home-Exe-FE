@@ -28,7 +28,7 @@ export function AuthContextProvider({ children }) {
   const [openModal, setOpenModal] = useState(false)
   const [reloadUserProfile, setReloadUserProfile] = useState(null)
   const [postingPush, setPostingPush] = useState([]);
-
+  const[allUser, setAllUser]= useState([])
   const googleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
@@ -56,8 +56,7 @@ export function AuthContextProvider({ children }) {
     const fetchData = async () => {
       try {
         const storedBuildings = JSON.parse(localStorage.getItem("buildings"));
-        const storedApartments = JSON.parse(localStorage.getItem("account_start"));
-        const token = JSON.parse(localStorage.getItem("access_token"))?.data;
+        const user = JSON.parse(localStorage.getItem("All_User"));
 
         if (storedBuildings) {
           setBuildings(storedBuildings);
@@ -70,8 +69,22 @@ export function AuthContextProvider({ children }) {
             })
             .catch((error) => {
               console.log(error);
-            });
-        }
+            })
+        } 
+        
+        if (user) {
+          setAllUser(user);
+        } else {
+              axios
+                .get("https://f-home-be.vercel.app/getAllUsers")
+                .then((response) => {
+                  // Xử lý dữ liệu từ API mới theo cách bạn muốn
+                  localStorage.setItem("All_User", JSON.stringify(response.data));
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
+        }        
       } catch (error) {
         console.log("error", error);
       }
@@ -91,7 +104,8 @@ export function AuthContextProvider({ children }) {
       setSelectedPost, point,
       setPoint, openModal,
       setOpenModal,
-      userProfile, setUserProfile, reloadUserProfile, setReloadUserProfile, postingPush, setPostingPush
+      userProfile, setUserProfile, reloadUserProfile, setReloadUserProfile, postingPush, setPostingPush,
+      allUser, setAllUser
     }}>
       <DataContext.Provider
         value={{

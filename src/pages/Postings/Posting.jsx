@@ -1348,7 +1348,7 @@ export default Posting;
 // const postings = responses[1].data.data.postings;
 // const rooms = responses[2].data.data.rooms;
 // const users = responses[3].data;
-// const newData = postings.map((post) => {
+// const enwData = postings.map((post) => {
 //   const building = buildings.find((b) => b._id === post.buildings);
 //   const buildingName = building ? building.buildingName : "";
 //   const room = rooms.find((r) => r._id === post.rooms);

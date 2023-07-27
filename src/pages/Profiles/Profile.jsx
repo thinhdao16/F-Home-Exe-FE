@@ -1,5 +1,5 @@
 import "./profile.scss";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import { DataContext } from "../DataContext";
 import { useContext, useMemo, useState } from "react";
 import DashboardWrapper, {
@@ -24,7 +24,6 @@ import PriceChangeOutlinedIcon from "@mui/icons-material/PriceChangeOutlined";
 import Dropzone from "react-dropzone";
 import PublicOutlinedIcon from "@mui/icons-material/PublicOutlined";
 import { AuthContext } from "../../components/context/AuthContext";
-import LoadingOverlay from "react-loading-overlay";
 import ForwardOutlinedIcon from "@mui/icons-material/ForwardOutlined";
 import { Textarea } from "@mui/joy";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
@@ -362,11 +361,8 @@ const Profile = () => {
                             aria-describedby="modal-modal-description"
                           >
                             <form onSubmit={handleSubmit}>
-                              <LoadingOverlay
-                                active={loading}
-                                spinner
-                                text="Loading your content..."
-                              >
+                              {/* ... Other content ... */}
+                        
                                 <Box
                                   style={{
                                     position: "relative",
@@ -683,7 +679,6 @@ const Profile = () => {
                                     </div>
                                   </div>
                                 </Box>
-                              </LoadingOverlay>
                             </form>
                           </StyledModal>
                           <PostComment />

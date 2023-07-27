@@ -41,11 +41,10 @@ import { AuthContext } from "../../components/context/AuthContext";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import Dropzone from "react-dropzone";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
-import LoadingOverlay from "react-loading-overlay";
 import ForwardOutlinedIcon from "@mui/icons-material/ForwardOutlined";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import { Tabs } from "antd";
-
+import {Audio } from 'react-loader-spinner';
 const { TabPane } = Tabs;
 const StyledModal = styled(Modal)({
   display: "flex",
@@ -635,11 +634,9 @@ function Posting({ children, filePath }) {
                               aria-describedby="modal-modal-description"
                             >
                               <form onSubmit={handleSubmit}>
-                                <LoadingOverlay
-                                  active={loading}
-                                  spinner
-                                  text="Loading your content..."
-                                >
+                              {loading ? (
+        <Audio type="Puff" color="#00BFFF" height={100} width={100} />
+      ) : (
                                   <Box
                                     style={{
                                       position: "relative",
@@ -960,7 +957,7 @@ function Posting({ children, filePath }) {
                                       </div>
                                     </div>
                                   </Box>
-                                </LoadingOverlay>
+      )}
                               </form>
                             </StyledModal>
                             {/* </div> */}

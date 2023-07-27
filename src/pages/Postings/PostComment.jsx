@@ -9,9 +9,9 @@ import { DataContext } from "../DataContext";
 import ForwardOutlinedIcon from "@mui/icons-material/ForwardOutlined";
 import RoofingOutlinedIcon from "@mui/icons-material/RoofingOutlined";
 import PriceChangeOutlinedIcon from "@mui/icons-material/PriceChangeOutlined";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import CropIcon from "@mui/icons-material/Crop";
-import LoadingOverlay from "react-loading-overlay";
+
 import { AuthContext } from "../../components/context/AuthContext";
 
 const StyledModal = styled(Modal)({
@@ -147,11 +147,6 @@ const PostComment = () => {
         aria-describedby="modal-modal-description"
       >
         <form onSubmit={handleSubmit}>
-          <LoadingOverlay
-            active={loading}
-            spinner
-            text="Loading your content..."
-          >
             <Box
               style={{ position: "relative", padding: "24px 24px 0 24px" }}
               width={700}
@@ -398,7 +393,6 @@ const PostComment = () => {
                 </div>
               </div>
             </Box>
-          </LoadingOverlay>
         </form>
       </StyledModal>
       {/* {success && setOpen(false)} */}

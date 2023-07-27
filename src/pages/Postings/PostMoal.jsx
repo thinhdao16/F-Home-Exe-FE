@@ -18,7 +18,6 @@ import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import { Textarea } from "@mui/joy";
 import { toast } from 'react-toastify';
-import LoadingOverlay from "react-loading-overlay";
 import PostMoal1 from "./PostMoal1";
 import PostModal2 from "./PostModal2";
 import PostModal3 from "./PostModal3"
@@ -26,7 +25,7 @@ import PostModal4 from "./PostModal4"
 import { useContext } from "react";
 import { DataContext } from "../DataContext";
 import { AuthContext } from "../../components/context/AuthContext";
-
+import {Audio} from 'react-loader-spinner';
 const StyledModal = styled(Modal)({
   display: "flex",
   alignItems: "center",
@@ -200,11 +199,9 @@ const PostModal = () => {
         aria-describedby="modal-modal-description"
       >
         <form onSubmit={handleSubmit}>
-          <LoadingOverlay
-            active={loading}
-            spinner
-            text="Loading your content..."
-          >
+        {loading ? (
+        <Audio type="Puff" color="#00BFFF" height={100} width={100} />
+      ) : (
             <Box
               style={{ position: "relative" }}
               width={500}
@@ -418,7 +415,7 @@ const PostModal = () => {
                 </Button>
               </ButtonGroup>
             </Box>
-          </LoadingOverlay>
+      )}
 
         </form>
 

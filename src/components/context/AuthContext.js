@@ -8,7 +8,6 @@ import {
 import { auth } from "../context/firebase";
 import axios from "axios";
 import { DataContext } from "../../pages/DataContext";
-import toastr from "cogo-toast";
 
 export const AuthContext = createContext(); // Tạo AuthContext
 

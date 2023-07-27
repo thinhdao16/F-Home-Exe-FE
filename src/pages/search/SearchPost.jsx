@@ -1,4 +1,3 @@
-import toastr from "cogo-toast";
 import { DataContext } from "../DataContext";
 import { useContext, useRef, useState } from "react";
 import Avatar from "react-avatar";
@@ -30,7 +29,7 @@ const SearchPost = ({ children }) => {
     event.preventDefault();
     axios
       .post(
-        "f-home-be.vercel.app/createFavouritePost",
+        "https://f-home-be.vercel.app/createFavouritePost",
         { postId: id },
         {
           headers: {
@@ -50,7 +49,7 @@ const SearchPost = ({ children }) => {
     const idLike = isLiked?.filter((like) => like?.post?._id === id)?.[0]._id;
     event.preventDefault();
     axios
-      .delete(`f-home-be.vercel.app/deleteFavouritePost/${idLike}`, {
+      .delete(`https://f-home-be.vercel.app/deleteFavouritePost/${idLike}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${userPosting.data.accessToken}`,
@@ -134,7 +133,7 @@ const SearchPost = ({ children }) => {
                             like
                           </div>
                           <div className="float-end">
-                            <a href="" className="posting-list__feel">
+                            <div className="posting-list__feel">
                               {" "}
                               {
                                 allCmt?.filter?.(
@@ -142,7 +141,7 @@ const SearchPost = ({ children }) => {
                                 )?.length
                               }{" "}
                               bình luận
-                            </a>
+                            </div>
                           </div>
                         </div>
                       <hr className="posting-list__hr" />

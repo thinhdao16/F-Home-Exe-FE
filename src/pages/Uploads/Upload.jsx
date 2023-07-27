@@ -4,8 +4,6 @@ import { Box } from "@mui/system";
 import { Link } from "react-router-dom";
 import Avatar from "react-avatar";
 import { TextField } from "@mui/material";
-import { Image } from "@mui/icons-material";
-import Dropzone from "react-dropzone";
 import { toast } from "react-toastify";
 // import 'react-toastify/dist/ReactToastify.css';
 import DashboardWrapper, {
@@ -58,7 +56,7 @@ export default function Upload() {
     formData.append("img", selectedFile);
 
     axios
-      .post("f-home-be.vercel.app/createPosting",formData, {
+      .post("https://f-home-be.vercel.app/createPosting",formData, {
         headers: {
           Authorization: `Bearer ${token.data.accessToken}`,
           "Content-Type": "multipart/form-data",

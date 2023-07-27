@@ -64,7 +64,7 @@ export function AuthContextProvider({ children }) {
           setBuildings(storedBuildings);
         } else {
           axios
-            .get("f-home-be.vercel.app/getBuildings")
+            .get("https://f-home-be.vercel.app/getBuildings")
             .then((response) => {
               setBuildings(response.data);
               localStorage.setItem("buildings", JSON.stringify(response.data));

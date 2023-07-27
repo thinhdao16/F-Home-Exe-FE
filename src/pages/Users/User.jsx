@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import toastr from "cogo-toast";
 import axios from "axios";
 
 const User = () => {
@@ -12,7 +11,7 @@ const User = () => {
         Authorization: `Bearer ${token.accessToken}`,
       },
     };
-    return axios.get("f-home-be.vercel.app/getUser", config)
+    return axios.get("https://f-home-be.vercel.app/getUser", config)
       .then((response) => {
         return response.data;
       })
@@ -132,7 +131,7 @@ const User = () => {
                   </td>
                   <td>{user._id}</td>
                   <td>
-                    <img src={user.img} className="mx-10" />
+                    {/* <img src={user.img} className="mx-10" /> */}
                   </td>
                   <td>{user.phoneNumber}</td>
                   <td>

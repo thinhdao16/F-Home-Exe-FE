@@ -2,7 +2,6 @@ import "./login.scss";
 import React, { useContext, useEffect, useState } from "react";
 import GoogleButton from "react-google-button";
 import { Link, useNavigate } from "react-router-dom";
-import { UserAuth } from "../../components/context/AuthContext";
 import { auth  } from "../../components/context/firebase";
 import clientId from "./client_secret_624291541261-vsnpuqvrn48tah5ju43l048ug23a3hre.apps.googleusercontent.com.json";
 import axios from "axios";
@@ -11,7 +10,7 @@ import toastr from "cogo-toast";
 import Loading from "react-fullscreen-loading";
 const Login = () => {
   const navigate = useNavigate();
-  const { googleSignIn, user, accessToken } = useContext(DataContext);
+  const { googleSignIn, accessToken } = useContext(DataContext);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGoogleSignIn = async () => {
@@ -25,7 +24,7 @@ const Login = () => {
           const idToken = await user.getIdToken();
           const accessToken = await user.getIdToken(true);
           const response = await axios.post(
-            "f-home-be.vercel.app/login",
+            "https://f-home-be.vercel.app/login",
             { accessToken: accessToken },
             {
               headers: {
@@ -52,7 +51,7 @@ const Login = () => {
                 Authorization: `Bearer ${token.data.accessToken}`,
               };
               axios
-                .get("f-home-be.vercel.app/getRoomsByUserId", {
+                .get("https://f-home-be.vercel.app/getRoomsByUserId", {
                   headers,
                 })
                 .then((response) => {
@@ -138,7 +137,7 @@ const Login = () => {
       </h1> */}
       <div id="wrap-main-content">
         <div className="identity-tabs">
-          <a href="">Login</a>
+          <a>Login</a>
         </div>
         <ul className="list-social-login">
           <li className="social-login-item">

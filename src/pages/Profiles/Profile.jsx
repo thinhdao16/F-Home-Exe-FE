@@ -1,15 +1,13 @@
-import { Link } from "react-router-dom";
 import "./profile.scss";
 import toastr from "cogo-toast";
 import { DataContext } from "../DataContext";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import DashboardWrapper, {
   DashboardWrapperMain,
   DashboardWrapperRight,
 } from "../../components/dashboard-wrapper/DashboardWrapper";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import axios from "axios";
-import { toast } from "react-toastify";
 import Avatar from "react-avatar";
 import Box from "@mui/material/Box";
 import {
@@ -45,19 +43,13 @@ const UserBox = styled(Box)({
   marginBottom: "20px",
 });
 const Profile = () => {
-  const {
-    setIsPendingUpdated,
-    isPendingUpdated,
-    point,
-    setPoint,
-    userProfile,
-    postingPush,
-  } = useContext(AuthContext);
+  const { setIsPendingUpdated, userProfile, postingPush } =
+    useContext(AuthContext);
   const userProfileToken = JSON.parse(
     localStorage.getItem("access_token")
   )?.data;
   const [value, setValue] = useState(0);
-  const [selectedPost, setSelectedPost] = useState(null);
+  const [selectedPost] = useState(null);
 
   // const [dataProfile, setDataProfile] = useState(userProfile?.user);
   const [fullName, setFullName] = useState(userProfile?.fullname);
@@ -65,22 +57,18 @@ const Profile = () => {
   const [phone, setPhone] = useState(userProfile?.phoneNumber);
   const [newImage, setNewImage] = useState(null);
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [isDropzoneEnabled, setIsDropzoneEnabled] = useState(false);
-  const [posts, setPost] = useState("");
-  const [newImageEdit, setNewImageEdit] = useState(null);
-
-  const { posting, allCmt, isLiked } = useContext(DataContext);
+  const { allCmt, isLiked } = useContext(DataContext);
 
   const arrPostPublish = useMemo(() => {
-    if (!postingPush) return [];
+    if (!postingPush || !userProfile?._id) return [];
 
     return postingPush?.postings?.filter(
       (posting) =>
-        posting.status === "published"
-        && posting?.userPosting?._id === userProfile?._id
+        posting.status === "published" &&
+        posting?.userPosting?._id === userProfile?._id
     );
-  }, [postingPush]);
+  }, [postingPush, userProfile?._id]);
+
   const handleSubmitFormProfile = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -89,8 +77,8 @@ const Profile = () => {
     formData.append("phoneNumber", phone);
     formData.append("img", newImage);
     try {
-      const response = await axios.put(
-        `f-home-be.vercel.app/userProfile/${userProfile?._id}`,
+      axios.put(
+        `https://f-home-be.vercel.app/userProfile/${userProfile?._id}`,
         formData,
         {
           headers: {
@@ -116,14 +104,12 @@ const Profile = () => {
   const handleDrop = (acceptedFiles) => {
     setNewImage(acceptedFiles[0]);
   };
-  const handleDropEdit = (acceptedFiles) => {
-    setNewImageEdit(acceptedFiles[0]);
-  };
+
   const handleLike = (event, id) => {
     event.preventDefault();
     axios
       .post(
-        "f-home-be.vercel.app/createFavouritePost",
+        "https://f-home-be.vercel.app/createFavouritePost",
         { postId: id },
         {
           headers: {
@@ -140,10 +126,7 @@ const Profile = () => {
         console.error("Failed to add like", error);
       });
   };
-  const handleEdit = () => {
-    setIsDropzoneEnabled(!isDropzoneEnabled);
-    setIsEditing(!isEditing);
-  };
+
   const PostingPublic = <PublicOutlinedIcon style={{ color: "green" }} />;
   const [loading, setLoading] = useState(false);
 
@@ -169,8 +152,8 @@ const Profile = () => {
     let isMounted = true;
     try {
       // setLoading(true);
-      const response = await axios.post(
-        "f-home-be.vercel.app/postAllPostingCommentByPost",
+      axios.post(
+        "https://f-home-be.vercel.app/postAllPostingCommentByPost",
         formData,
         {
           headers: {
@@ -207,7 +190,7 @@ const Profile = () => {
 
     try {
       const response = await axios.get(
-        `f-home-be.vercel.app/getAllPostingCommentByPost/${id}`,
+        `https://f-home-be.vercel.app/getAllPostingCommentByPost/${id}`,
         {
           headers: {
             Authorization: `Bearer ${userProfileToken.accessToken}`,
@@ -234,7 +217,7 @@ const Profile = () => {
     const idLike = isLiked?.filter((like) => like?.post?._id === id)?.[0]._id;
     event.preventDefault();
     axios
-      .delete(`f-home-be.vercel.app/deleteFavouritePost/${idLike}`, {
+      .delete(`https://f-home-be.vercel.app/deleteFavouritePost/${idLike}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${userProfileToken.accessToken}`,
@@ -324,7 +307,7 @@ const Profile = () => {
                           like
                         </div>
                         <div className="float-end">
-                          <a href="" className="posting-list__feel">
+                          <div className="posting-list__feel">
                             {" "}
                             {
                               allCmt?.filter?.(
@@ -332,7 +315,7 @@ const Profile = () => {
                               )?.length
                             }{" "}
                             bình luận
-                          </a>
+                          </div>
                         </div>
                       </div>
                       <hr className="posting-list__hr" />

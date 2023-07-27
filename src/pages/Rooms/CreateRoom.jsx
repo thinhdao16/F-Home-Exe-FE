@@ -1,5 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
-import Box from "@mui/material/Box";
+import React, {  useEffect, useState } from "react";
 import DescriptionIcon from "@mui/icons-material/Description";
 import DashboardWrapper, {
   DashboardWrapperMain,
@@ -59,7 +58,7 @@ function CreateRoom() {
     formData.append("img", selectedFile);
 
     axios
-      .post("f-home-be.vercel.app/createRoom", formData, {
+      .post("https://f-home-be.vercel.app/createRoom", formData, {
         headers: {
           Authorization: `Bearer ${token.data.accessToken}`,
           "Content-Type": "multipart/form-data",
@@ -104,9 +103,9 @@ function CreateRoom() {
         }
         const headers = { Authorization: `Bearer ${token.data.accessToken}` };
         const responses = await Promise.all([
-          axios.get("f-home-be.vercel.app/getBuildings"),
-          axios.get("f-home-be.vercel.app/getRoomsByUserId", { headers }),
-          axios.get("f-home-be.vercel.app/getAllUsers"),
+          axios.get("https://f-home-be.vercel.app/getBuildings"),
+          axios.get("https://f-home-be.vercel.app/getRoomsByUserId", { headers }),
+          axios.get("https://f-home-be.vercel.app/getAllUsers"),
         ]);
         const buildings = responses[0].data.data.buildings;
         const rooms = responses[1].data.data.rooms;

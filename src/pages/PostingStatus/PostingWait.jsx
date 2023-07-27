@@ -50,7 +50,7 @@ function PostingWait() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get("f-home-be.vercel.app/posts/", {
+        const response = await axios.get("https://f-home-be.vercel.app/posts/", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${userPosting.data.accessToken}`,
@@ -58,7 +58,7 @@ function PostingWait() {
         });
         setPosting(response.data.data?.postings);
         const responsePoint = await axios.get(
-          "f-home-be.vercel.app/getformpoint",
+          "https://f-home-be.vercel.app/getformpoint",
           {
             headers: {
               "Content-Type": "application/json",
@@ -78,7 +78,7 @@ function PostingWait() {
   const handleApproved = (id) => {
     const confirmed = window.confirm("Bạn có chắc chắn muốn gửi bài này?");
     if (confirmed) {
-      fetch(`f-home-be.vercel.app/deleteformpoint/${id}`, {
+      fetch(`https://f-home-be.vercel.app/deleteformpoint/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -137,7 +137,7 @@ function PostingWait() {
           <form className="mt-3">
             <div className="card p-3 shadow-sm bg-body rounded-3 border-0">
               <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <Table sx={{ maxWidth: 650 }} aria-label="simple table">
                   <TableHead>
                     <TableRow>
                       <TableCell> Transfer Contents</TableCell>

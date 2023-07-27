@@ -80,7 +80,7 @@ function Posting({ children, filePath }) {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "f-home-be.vercel.app/getAllFavourite",
+          "https://f-home-be.vercel.app/getAllFavourite",
           {
             headers: {
               "Content-Type": "application/json",
@@ -90,7 +90,7 @@ function Posting({ children, filePath }) {
         );
         setIsLiked(response.data?.data?.favourite);
 
-        const responsePost = await axios.get("f-home-be.vercel.app/posts/", {
+        const responsePost = await axios.get("https://f-home-be.vercel.app/posts/", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${userPosting.data.accessToken}`,
@@ -99,7 +99,7 @@ function Posting({ children, filePath }) {
         setPostingPush(responsePost?.data?.data);
 
         const responsePostComment = await axios.get(
-          "f-home-be.vercel.app/allComment/",
+          "https://f-home-be.vercel.app/allComment/",
           {
             headers: {
               "Content-Type": "application/json",
@@ -110,7 +110,7 @@ function Posting({ children, filePath }) {
         setAllCmt(responsePostComment?.data?.data?.postingComments);
 
         const responsePoint = await axios.get(
-          `f-home-be.vercel.app/users/${userPostings.id}`,
+          `https://f-home-be.vercel.app/users/${userPostings.id}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -120,7 +120,7 @@ function Posting({ children, filePath }) {
         );
         setPoint(responsePoint?.data);
         const responseProfile = await axios.get(
-          `f-home-be.vercel.app/userProfile/${userPostings?.id}`,
+          `https://f-home-be.vercel.app/userProfile/${userPostings?.id}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -176,7 +176,7 @@ function Posting({ children, filePath }) {
       if (point?.point > 0) {
         axios
           .put(
-            `f-home-be.vercel.app/posts/confirm/${id}`,
+            `https://f-home-be.vercel.app/posts/confirm/${id}`,
             { status: "pending" },
             {
               headers: {
@@ -213,7 +213,7 @@ function Posting({ children, filePath }) {
 
     if (window.confirm("Bạn có chắc muốn reject post này không?")) {
       axios
-        .delete(`f-home-be.vercel.app/posts/delete/${id}`, {
+        .delete(`https://f-home-be.vercel.app/posts/delete/${id}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${userPosting.data.accessToken}`,
@@ -239,7 +239,7 @@ function Posting({ children, filePath }) {
     event.preventDefault();
     axios
       .post(
-        "f-home-be.vercel.app/createFavouritePost",
+        "https://f-home-be.vercel.app/createFavouritePost",
         { postId: id },
         {
           headers: {
@@ -260,7 +260,7 @@ function Posting({ children, filePath }) {
     const idLike = isLiked?.filter((like) => like?.post?._id === id)?.[0]._id;
     event.preventDefault();
     axios
-      .delete(`f-home-be.vercel.app/deleteFavouritePost/${idLike}`, {
+      .delete(`https://f-home-be.vercel.app/deleteFavouritePost/${idLike}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${userPosting.data.accessToken}`,
@@ -299,6 +299,8 @@ function Posting({ children, filePath }) {
   const [openModal, setOpenModal] = useState(false);
   const [description, setDescription] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFilePoint, setSelectedFilePoint] = useState(null);
+
   const [showDeleteButton, setShowDeleteButton] = useState(false);
   const [productComment, setProductComment] = useState(null);
   const token = JSON.parse(localStorage.getItem("access_token"));
@@ -318,7 +320,7 @@ function Posting({ children, filePath }) {
     try {
       setLoading(true);
       const response = await axios.post(
-        "f-home-be.vercel.app/postAllPostingCommentByPost",
+        "https://f-home-be.vercel.app/postAllPostingCommentByPost",
         formData,
         {
           headers: {
@@ -355,7 +357,7 @@ function Posting({ children, filePath }) {
 
     try {
       const response = await axios.get(
-        `f-home-be.vercel.app/getAllPostingCommentByPost/${id}`,
+        `https://f-home-be.vercel.app/getAllPostingCommentByPost/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token.data.accessToken}`,
@@ -376,11 +378,13 @@ function Posting({ children, filePath }) {
   const handleFileChange = (acceptedFiles) => {
     setSelectedFile(acceptedFiles[0]);
   };
+  const handleFileChangePoint = (acceptedFiles) => {
+    setSelectedFilePoint(acceptedFiles[0]);
+  };
   // end comment
   const onChange = (key) => {
     console.log(key);
   };
-  console.log(selectedFile);
 
   const handleSubmitPoint = async (event) => {
     event.preventDefault();
@@ -392,13 +396,13 @@ function Posting({ children, filePath }) {
     var formData = new FormData();
     formData.append("point", pointScore);
     formData.append("script", pointScript);
-    formData.append("img", selectedFile);
+    formData.append("img", selectedFilePoint);
     let isMounted = true;
     console.log(pointScore);
     try {
       setLoading(true);
       const response = await axios.post(
-        "f-home-be.vercel.app/postformpoint",
+        "https://f-home-be.vercel.app/postformpoint",
         // {
         formData,
         //    point: pointScore,
@@ -408,7 +412,7 @@ function Posting({ children, filePath }) {
         {
           headers: {
             Authorization: `Bearer ${token.data.accessToken}`,
-            // "Content-Type": "multipart/form-data",
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -416,6 +420,9 @@ function Posting({ children, filePath }) {
         position: "top-right",
         heading: "Done",
       });
+      setPointScore("")
+      setPointScript("")
+      setSelectedFilePoint(null)
       if (isMounted) {
         console.log(response.data);
         setOpen(false);
@@ -444,8 +451,8 @@ function Posting({ children, filePath }) {
     {
       key: "2",
       label: `Tin`,
-      imageUrl: "https://www.text-image.com/resources/btn-matrix.jpg", // Đường dẫn hình ảnh cho Tab 3
-
+      imageUrl:
+        "https://firebasestorage.googleapis.com/v0/b/auth-fhome.appspot.com/o/profilePics%2F9280d23cc611154f4c00.jpg?alt=media&token=3daced94-55f4-4660-a54c-303862d56ca4", // Đường dẫn hình ảnh cho Tab 3
     },
     {
       key: "3",
@@ -483,7 +490,7 @@ function Posting({ children, filePath }) {
                         src={userProfile?.img}
                       />
                     </div>
-                    <div className="col-md-11">
+                    <div className="col-md-10">
                       <PostModal />
                     </div>
                   </div>
@@ -1008,7 +1015,9 @@ function Posting({ children, filePath }) {
                             sx={{
                               maxWidth: 500,
                               borderRadius: "md",
-                              p: 3,
+                              pl: 2,
+                              pr: 1,
+                              py: 3,
                               "::-webkit-scrollbar": {
                                 display: "none",
                               },
@@ -1018,7 +1027,6 @@ function Posting({ children, filePath }) {
                               "background-color": "white",
                               boxShadow: "0 2px 12px 0 rgba(0 0 0 / 0.2)",
                             }}
-
                           >
                             <ModalClose
                               variant="outlined"
@@ -1034,31 +1042,50 @@ function Posting({ children, filePath }) {
                                 border: "none",
                               }}
                             />
+                            <Typography
+                              component="h2"
+                              id="modal-title"
+                              level="h1"
+                              fontWeight="lg"
+                              mb={1}
+                              className="text-center fs-3"
+                              style={{ fontWeight: 500 }}
+                            >
+                              Deposit method
+                            </Typography>
                             <Box
-                              style={{ position: "relative" }}
-                              // width={500}
-                              // minHeight={475}
-                              // maxHeight={700}
+                              style={{
+                                position: "relative",
+                                maxHeight: "430px",
+                                overflow: "auto",
+                                paddingRight:"3px",
+                              }}
                               bgcolor="white"
-                              // p={3}
-                              borderRadius={5}
+                              // borderRadius={5}
                               sx={{
-                                "::-webkit-scrollbar": {
-                                  display: "none",
+                                "&::-webkit-scrollbar": {
+                                  width: "8px",
+                                },
+                                "&::-webkit-scrollbar-track": {
+                                  borderRadius: "10px",
+                                  background: "rgba(0, 0, 0, 0.1)",
+                                  border: "1px solid #ccc",
+                                },
+                                "&::-webkit-scrollbar-thumb": {
+                                  borderRadius: "10px",
+                                  background:
+                                    "linear-gradient(left, #fff, #e4e4e4)",
+                                  border: "1px solid #aaa",
+                                },
+                                "&::-webkit-scrollbar-thumb:hover": {
+                                  background: "#fff",
+                                },
+                                "&::-webkit-scrollbar-thumb:active": {
+                                  background:
+                                    "linear-gradient(left, #22ADD4, #1E98BA)",
                                 },
                               }}
                             >
-                              <Typography
-                                component="h2"
-                                id="modal-title"
-                                level="h1"
-                                fontWeight="lg"
-                                mb={1}
-                                className="text-center fs-3"
-                                style={{ fontWeight: 500 }}
-                              >
-                                Deposit method
-                              </Typography>
                               <Tabs defaultActiveKey="1" onChange={onChange}>
                                 {items.map((item) => (
                                   <TabPane
@@ -1075,9 +1102,11 @@ function Posting({ children, filePath }) {
                                       style={{
                                         width: 230,
                                         height: 230,
-                                        objectFit: "contain",
+                                        objectFit: "cover",
                                         marginBottom: "10px",
                                         borderRadius: "15px",
+                                        boxShadow:
+                                          " rgba(149, 157, 165, 0.2) 0px 8px 24px",
                                       }}
                                     />
                                     {/* <h3>{item.label}</h3> */}
@@ -1126,19 +1155,75 @@ function Posting({ children, filePath }) {
                               >
                                 1D = 1000VND
                               </span>
-                              <Button
-                                variant="contained"
-                                type="submit"
-                                style={{
-                                  marginBottom: "12px",
-                                  backgroundColor: "#b48845",
-                                  display: "block",
-                                  margin: "10px 0 0 0",
-                                }}
+                              {selectedFilePoint ? (
+                                <div>
+                                  <img
+                                    className="rounded-3 shadow"
+                                    src={URL.createObjectURL(selectedFilePoint)}
+                                    alt="preview"
+                                    style={{
+                                      width: 230,
+                                      height: 230,
+                                      objectFit: "cover",
+                                    }}
+                                  />
+                                </div>
+                              ) : (
+                                <span></span>
+                              )}
+                              <Dropzone
+                                onDrop={handleFileChangePoint}
+                                accept="image/*"
                               >
-                                Submit
-                              </Button>
+                                {({ getRootProps, getInputProps }) => (
+                                  <div
+                                    {...getRootProps()}
+                                    style={{
+                                      border: "1px solid #e4e6eb",
+                                      borderRadius: 8,
+                                      marginBottom: 10,
+                                      height: 57,
+                                      marginTop: 10,
+                                    }}
+                                  >
+                                    <input {...getInputProps()} />
+                                    <p
+                                      style={{
+                                        fontSize: "0.875rem",
+                                        fontWeight: 600,
+                                        color: "#65676b",
+                                        marginTop: 12,
+                                        marginLeft: 16,
+                                        fontWeight: 500,
+                                      }}
+                                    >
+                                      <span className="text-dark">
+                                        Thêm hình ảnh
+                                      </span>
+                                      <ImageOutlinedIcon
+                                        style={{
+                                          fontSize: "30px",
+                                          color: "#6ab175",
+                                          marginLeft: 50,
+                                        }}
+                                      />{" "}
+                                    </p>
+                                  </div>
+                                )}
+                              </Dropzone>
                             </Box>
+                            <Button
+                              variant="contained"
+                              type="submit"
+                              style={{
+                                marginBottom: "12px",
+                                backgroundColor: "#b48845",
+                                display: "block",
+                                margin: "10px 0 0 0",
+                              }}
+                            >
+                              Submit
+                            </Button>
                           </Sheet>
                         </form>
                       </Modal>
@@ -1257,10 +1342,10 @@ export default Posting;
 // });
 // const arrPost = useMemo(() => dataPosting?.postings, [dataPosting]);
 // const responses = await Promise.all([
-//   axios.get("f-home-be.vercel.app/getBuildings"),
-//   axios.get("f-home-be.vercel.app/getAllStatus"),
-//   axios.get("f-home-be.vercel.app/getRooms"),
-//   axios.get("f-home-be.vercel.app/getAllUsers"),
+//   axios.get("https://f-home-be.vercel.app/getBuildings"),
+//   axios.get("https://f-home-be.vercel.app/getAllStatus"),
+//   axios.get("https://f-home-be.vercel.app/getRooms"),
+//   axios.get("https://f-home-be.vercel.app/getAllUsers"),
 // ]);
 // const buildings = responses[0].data.data.buildings;
 // const postings = responses[1].data.data.postings;
@@ -1306,7 +1391,7 @@ export default Posting;
 
 // // Get favorites
 // const response = await axios.get(
-//   "f-home-be.vercel.app/getFavouriteByUser",
+//   "https://f-home-be.vercel.app/getFavouriteByUser",
 //   {
 //     headers: {
 //       "Content-Type": "application/json",

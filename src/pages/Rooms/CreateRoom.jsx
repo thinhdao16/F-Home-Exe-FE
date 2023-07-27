@@ -26,7 +26,8 @@ import "./CreateRoom.scss";
 import Dropzone from "react-dropzone";
 import BedroomParentOutlinedIcon from "@mui/icons-material/BedroomParentOutlined";
 import DnsOutlinedIcon from "@mui/icons-material/DnsOutlined";
-import toastr from "cogo-toast";
+import { toast } from 'react-toastify';
+
 
 function CreateRoom() {
   const localStorageDataBuildings = localStorage.getItem("buildings");
@@ -66,7 +67,7 @@ function CreateRoom() {
       })
       .then((response) => {
         console.log(response.data);
-        toastr.success("Create Room successfully", {
+        toast.success("Create Room successfully", {
           position: "top-right",
           heading: "Done",
         });
@@ -78,7 +79,7 @@ function CreateRoom() {
         });
       })
       .catch((error) => {
-        toastr.fail("Create Room fail", {
+        toast.fail("Create Room fail", {
           position: "top-right",
           heading: "Done",
         });

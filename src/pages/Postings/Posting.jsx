@@ -17,7 +17,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import PostModal from "./PostMoal";
 import PostComment from "./PostComment";
 import { DataContext } from "../DataContext";
-import toastr from "cogo-toast";
+import { toast } from 'react-toastify';
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
 import {
@@ -142,7 +142,7 @@ function Posting({ children, filePath }) {
           // Something else happened while setting up the request
           console.log("Error", error.message);
         }
-        toastr.error("Can not find post", {
+        toast.error("Can not find post", {
           position: "top-right",
           heading: "Done",
         });
@@ -186,21 +186,21 @@ function Posting({ children, filePath }) {
             }
           )
           .then((response) => {
-            toastr.success("Successfully you wait pls", {
+            toast.success("Successfully you wait pls", {
               position: "top-right",
               heading: "Done",
             });
             setIsPendingUpdated((prev) => !prev);
           })
           .catch((error) => {
-            toastr.error("post fail", {
+            toast.error("post fail", {
               position: "top-right",
               heading: "Done",
             });
             console.log(error);
           });
       } else {
-        toastr.warn("You dont enough point", {
+        toast.warn("You dont enough point", {
           position: "top-right",
           heading: "Fail",
         });
@@ -220,14 +220,14 @@ function Posting({ children, filePath }) {
           },
         })
         .then((response) => {
-          toastr.success("delêt successfully", {
+          toast.success("delêt successfully", {
             position: "top-right",
             heading: "Done",
           });
           setIsPendingUpdated((prev) => !prev);
         })
         .catch((error) => {
-          toastr.error("delete fail", {
+          toast.error("delete fail", {
             position: "top-right",
             heading: "Done",
           });
@@ -334,7 +334,7 @@ function Posting({ children, filePath }) {
         setOpenModal(false);
         setIsPendingUpdated((prev) => !prev);
       }
-      toastr.success("Comment successfully", {
+      toast.success("Comment successfully", {
         position: "top-right",
         heading: "Done",
       });
@@ -416,7 +416,7 @@ function Posting({ children, filePath }) {
           },
         }
       );
-      toastr.success("Post successfully", {
+      toast.success("Post successfully", {
         position: "top-right",
         heading: "Done",
       });
@@ -428,7 +428,7 @@ function Posting({ children, filePath }) {
         setOpen(false);
       }
     } catch (error) {
-      toastr.warn("You have an unprocessed transaction", {
+      toast.warn("You have an unprocessed transaction", {
         position: "top-right",
         heading: "Done",
       });

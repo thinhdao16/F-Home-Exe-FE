@@ -17,7 +17,7 @@ import Dropzone from "react-dropzone";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import { Textarea } from "@mui/joy";
-import toastr from "cogo-toast";
+import { toast } from 'react-toastify';
 import LoadingOverlay from "react-loading-overlay";
 import PostMoal1 from "./PostMoal1";
 import PostModal2 from "./PostModal2";
@@ -89,7 +89,7 @@ const PostModal = () => {
           },
         })
         .then((response) => {
-          toastr.success("Post successfully", {
+          toast.success("Post successfully", {
             position: "top-right",
             heading: "Done",
           });
@@ -99,7 +99,7 @@ const PostModal = () => {
           setIsPendingUpdated((prev) => !prev);
         })
         .catch((error) => {
-          toastr.error("Can not post", {
+          toast.error("Can not post", {
             position: "top-right",
             heading: "Done",
           });

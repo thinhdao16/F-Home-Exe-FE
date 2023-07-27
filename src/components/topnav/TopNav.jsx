@@ -3,7 +3,8 @@ import { useContext, useState, useEffect } from "react";
 import { DataContext } from "../../pages/DataContext";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { useNavigate } from "react-router-dom";
-import toastr from "cogo-toast";
+import { toast } from 'react-toastify';
+
 import {
   Button,
   FormControl,
@@ -58,12 +59,12 @@ const TopNav = () => {
       return values.includes(searchTerm.toLowerCase());
     });
     if (data.length === 0) {
-      toastr.error("Can not find", {
+      toast.error("Can not find", {
         position: "top-right",
         heading: "Done",
       });
     } else {
-      toastr.info("This is an info find", {
+      toast.info("This is an info find", {
         position: "top-right",
         heading: "Done",
       });
@@ -78,12 +79,12 @@ const TopNav = () => {
       return post?.rooms?.price >= min && post?.rooms?.price <= max;
     });
     if (filteredPrice.length === 0) {
-      toastr.error("Can not filter", {
+      toast.error("Can not filter", {
         position: "top-right",
         heading: "Done",
       });
     } else {
-      toastr.info("This is an info filter", {
+      toast.info("This is an info filter", {
         position: "top-right",
         heading: "Done",
       });
@@ -98,12 +99,12 @@ const TopNav = () => {
     });
     console.log(data);
     if (building.length === 0) {
-      toastr.error("Can not find", {
+      toast.error("Can not find", {
         position: "top-right",
         heading: "Done",
       });
     } else {
-      toastr.info("This is an info building", {
+      toast.info("This is an info building", {
         position: "top-right",
         heading: "Done",
       });
@@ -118,12 +119,12 @@ const TopNav = () => {
       return post?.rooms?.size >= min && post.rooms?.size <= max;
     });
     if (filteredArea.length === 0) {
-      toastr.error("Can not area", {
+      toast.error("Can not area", {
         position: "top-right",
         heading: "Done",
       });
     } else {
-      toastr.info("This is an info area", {
+      toast.info("This is an info area", {
         position: "top-right",
         heading: "Done",
       });

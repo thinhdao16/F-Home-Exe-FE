@@ -9,7 +9,7 @@ import { DataContext } from "../DataContext";
 import ForwardOutlinedIcon from "@mui/icons-material/ForwardOutlined";
 import RoofingOutlinedIcon from "@mui/icons-material/RoofingOutlined";
 import PriceChangeOutlinedIcon from "@mui/icons-material/PriceChangeOutlined";
-import toastr from "cogo-toast";
+import { toast } from 'react-toastify';
 import CropIcon from "@mui/icons-material/Crop";
 import LoadingOverlay from "react-loading-overlay";
 import { AuthContext } from "../../components/context/AuthContext";
@@ -82,7 +82,7 @@ const PostComment = () => {
         setOpen(false);
         setIsPendingUpdated((prev) => !prev);
       }
-      toastr.success("Comment successfully", {
+      toast.success("Comment successfully", {
         position: "top-right",
         heading: "Done",
       });

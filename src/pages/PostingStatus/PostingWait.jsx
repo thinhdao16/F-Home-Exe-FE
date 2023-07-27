@@ -1,7 +1,6 @@
 import axios from "axios";
 import { useContext, useEffect, useMemo, useState } from "react";
 import React from "react";
-import toastr from "cogo-toast";
 import DashboardWrapper, {
   DashboardWrapperMain,
   DashboardWrapperRight,
@@ -23,6 +22,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { AuthContext } from "../../components/context/AuthContext";
 import { Space, Tag } from "antd";
+import { toast } from 'react-toastify';
 
 function PostingWait() {
   const styleStatus = {
@@ -90,7 +90,7 @@ function PostingWait() {
       })
         .then((res) => res.json())
         .then((response) => {
-          toastr.success("Successfully you wait pls", {
+          toast.success("Successfully you wait pls", {
             position: "top-right",
             heading: "Done",
           });

@@ -17,7 +17,8 @@ import Dropzone from "react-dropzone";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import { Textarea } from "@mui/joy";
-import toastr from "cogo-toast";
+import { toast } from 'react-toastify';
+
 
 const StyledModal = styled(Modal)({
   display: "flex",
@@ -89,7 +90,7 @@ const PostingDarft = () => {
           },
         }
       );
-      toastr.success("Post successfully", {
+      toast.success("Post successfully", {
         position: "top-right",
         heading: "Done",
       });
@@ -98,7 +99,7 @@ const PostingDarft = () => {
         setOpen(false);
       }
     } catch (error) {
-      toastr.error("Can not post", {
+      toast.error("Can not post", {
         position: "top-right",
         heading: "Done",
       });

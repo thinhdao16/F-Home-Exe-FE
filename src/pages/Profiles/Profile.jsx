@@ -1,5 +1,5 @@
 import "./profile.scss";
-import toastr from "cogo-toast";
+import { toast } from 'react-toastify';
 import { DataContext } from "../DataContext";
 import { useContext, useMemo, useState } from "react";
 import DashboardWrapper, {
@@ -88,12 +88,12 @@ const Profile = () => {
         }
       );
       // setReloadUserProfi le((prev) => !prev)
-      toastr.success("Update successfully", {
+      toast.success("Update successfully", {
         position: "top-right",
         heading: "Done",
       });
     } catch (error) {
-      toastr.error("Can not updateProfile", {
+      toast.error("Can not updateProfile", {
         position: "top-right",
         heading: "Done",
       });
@@ -167,7 +167,7 @@ const Profile = () => {
         setOpenModal(false);
         setIsPendingUpdated((prev) => !prev);
       }
-      toastr.success("Comment successfully", {
+      toast.success("Comment successfully", {
         position: "top-right",
         heading: "Done",
       });

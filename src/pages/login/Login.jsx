@@ -6,7 +6,7 @@ import { auth  } from "../../components/context/firebase";
 import clientId from "./client_secret_624291541261-vsnpuqvrn48tah5ju43l048ug23a3hre.apps.googleusercontent.com.json";
 import axios from "axios";
 import { DataContext } from "../DataContext";
-import toastr from "cogo-toast";
+import { toast } from 'react-toastify';
 import Loading from "react-fullscreen-loading";
 const Login = () => {
   const navigate = useNavigate();
@@ -63,39 +63,39 @@ const Login = () => {
                 .catch((error) => {
                   console.error(error);
                 });
-              toastr.success("Login successfully", {
+                toast.success("Login successfully", {
                 position: "top-right",
                 heading: "Done",
               });
               navigate("/home");
               //         }
             } else {
-              toastr.warn("please you are admin dont go", {
+              toast.warn("please you are admin dont go", {
                 position: "top-right",
                 heading: "Done",
               });
             }
           } else {
-            toastr.error("Response not OK", {
+            toast.error("Response not OK", {
               position: "top-right",
               heading: "Done",
             });
           }
         } else {
-          toastr.error("User not found", {
+          toast.error("User not found", {
             position: "top-right",
             heading: "Done",
           });
         }
       } else {
-        toastr.error("Access token not found", {
+        toast.error("Access token not found", {
           position: "top-right",
           heading: "Done",
         });
       }
       setIsLoading(false); // set loading to false after the API call
     } catch (error) {
-      toastr.warn(`please wait for admin to confirm`, {
+      toast.warn(`please wait for admin to confirm`, {
         position: "top-right",
         heading: "Done",
       });

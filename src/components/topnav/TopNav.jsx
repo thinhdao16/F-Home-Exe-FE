@@ -1,5 +1,5 @@
 import "./topnav.scss";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useMemo } from "react";
 import { DataContext } from "../../pages/DataContext";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +16,7 @@ import { Stack } from "@mui/system";
 import RoofingOutlinedIcon from "@mui/icons-material/RoofingOutlined";
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import PriceChangeOutlinedIcon from "@mui/icons-material/PriceChangeOutlined";
+import { AuthContext } from "../context/AuthContext";
 
 const TopNav = () => {
   const openSidebar = () => {
@@ -37,15 +38,21 @@ const TopNav = () => {
     setSearchTerm(event.target.value);
   };
   const {
-    posting,
     setPosting,
     chooseWant,
     setChooseWant,
   } = useContext(DataContext);
+  const{postingPush} = useContext(AuthContext)
+  const arrPostPublish = useMemo(() => {
+    if (!postingPush) return [];
+    return postingPush?.postings?.filter(
+      (posting) => posting.status === "published"
+    );
+  }, [postingPush]);
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    const data = posting.filter((post) => {
+    const data = arrPostPublish.filter((post) => {
       const posBuildings = post?.buildings;
       const postRooms = post?.rooms;
       const values =
@@ -74,7 +81,7 @@ const TopNav = () => {
   };
   const handleSubmitFilter = (event) => {
     event.preventDefault();
-    let filteredPrice = posting.filter((post) => {
+    let filteredPrice = arrPostPublish.filter((post) => {
       const [min, max] = selectedPriceRange.split("-");
       return post?.rooms?.price >= min && post?.rooms?.price <= max;
     });
@@ -94,7 +101,7 @@ const TopNav = () => {
   };
   const handleFilterBuilding = (event) => {
     event.preventDefault();
-    const building = posting?.filter((post) => {
+    const building = arrPostPublish?.filter((post) => {
       return post?.buildings?.buildingName == buildings;
     });
     console.log(data);
@@ -114,7 +121,7 @@ const TopNav = () => {
   };
   const handleAreaFilter = (event) => {
     event.preventDefault();
-    let filteredArea = posting.filter((post) => {
+    let filteredArea = arrPostPublish.filter((post) => {
       const [min, max] = selectedArePost.split("-");
       return post?.rooms?.size >= min && post.rooms?.size <= max;
     });

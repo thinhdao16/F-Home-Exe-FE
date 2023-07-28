@@ -17,15 +17,13 @@ import Dropzone from "react-dropzone";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import { Textarea } from "@mui/joy";
-import { toast } from 'react-toastify';
-import PostMoal1 from "./PostMoal1";
-import PostModal2 from "./PostModal2";
-import PostModal3 from "./PostModal3"
-import PostModal4 from "./PostModal4"
+import { toast } from "react-toastify";
 import { useContext } from "react";
-import { DataContext } from "../DataContext";
 import { AuthContext } from "../../components/context/AuthContext";
-import {Audio} from 'react-loader-spinner';
+import { Audio } from "react-loader-spinner";
+import {  useNavigate } from "react-router-dom";
+
+
 const StyledModal = styled(Modal)({
   display: "flex",
   alignItems: "center",
@@ -40,6 +38,8 @@ const UserBox = styled(Box)({
 });
 
 const PostModal = () => {
+  
+const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const handleClose = () => setOpen(false);
   const [success, setSuccess] = useState(false);
@@ -56,15 +56,15 @@ const PostModal = () => {
   const [room, setRoom] = React.useState("");
   const [selectedFile, setSelectedFile] = React.useState(null);
   const [showDeleteButton, setShowDeleteButton] = useState(false);
-
   const [buildingName, setBuildingName] = useState("");
   const [buildingId, setBuildingId] = useState("");
-
   const [loading, setLoading] = useState(false);
-  // const { isPendingUpdated, setIsPendingUpdated } = useContext(DataContext);
-  const { setIsPendingUpdated} = useContext(AuthContext); 
-    const handleSubmit = (event) => {
-      event.preventDefault();
+  
+  const { setIsPendingUpdated, userProfile } = useContext(AuthContext);
+  const handleSubmit = (event) => { 
+    event.preventDefault();
+    const emailExists = userProfile?.phoneNumber
+    if (emailExists !== "") {
       const token = JSON.parse(localStorage.getItem("access_token"));
       if (!token) {
         console.log("No access token found.");
@@ -77,11 +77,11 @@ const PostModal = () => {
       formData.append("rooms", room);
       formData.append("img", selectedFile);
       let isMounted = true;
-    
+
       setLoading(true);
-    
+
       axios
-        .post("https://f-home-be.vercel.app/posts/create", formData, {
+        .post("http://localhost:3000/posts/create", formData, {
           headers: {
             Authorization: `Bearer ${token.data.accessToken}`,
             "Content-Type": "multipart/form-data",
@@ -107,12 +107,20 @@ const PostModal = () => {
         .finally(() => {
           setLoading(false);
         });
-    
+
       return () => {
         isMounted = false;
       };
-    };
-    
+    } else {
+      toast.warn("Please update phoneNumber", {
+        position: "top-right",
+        heading: "Error",
+      });
+      setOpen(false);
+      navigate("/home/profiles");
+    }
+  };
+
   const handleDelete = () => {
     setSelectedFile(null);
     setShowDeleteButton(false);
@@ -125,7 +133,7 @@ const PostModal = () => {
     const token = JSON.parse(localStorage.getItem("access_token"));
     const headers = { Authorization: `Bearer ${token.data.accessToken}` };
     axios
-      .get("https://f-home-be.vercel.app/getRoomsByUserId", { headers })
+      .get("http://localhost:3000/getRoomsByUserId", { headers })
       .then((response) => {
         const roomIds = response.data;
         if (roomIds) {
@@ -146,41 +154,6 @@ const PostModal = () => {
     setBuildingId(building?._id);
   }
 
-  const [currentComponent, setCurrentComponent] = useState(1);
-
-  const handleNext = () => {
-    setCurrentComponent((prevComponent) => prevComponent + 1);
-  };
-  const handleBack = () => {
-    setCurrentComponent((prevComponent) => prevComponent - 1);
-  };
-
-  let componentToRender;
-  // let showNextButton = false;
-  // let showBackButton = false;
-
-  switch (currentComponent) {
-    case 1:
-      componentToRender = <PostMoal1 onNext={handleNext} />;
-      // showNextButton = true;
-      break;
-    case 2:
-      componentToRender = <PostModal2 onNext={handleNext} onBack={handleBack} />;
-      // showNextButton = true;
-      // showBackButton = true;
-      break;
-    case 3:
-      componentToRender = <PostModal3 onNext={handleNext} onBack={handleBack} />;
-      // showNextButton = true;
-      // showBackButton = true;
-      break;
-    case 4:
-      componentToRender = <PostModal4 onBack={handleBack} />;
-      // showBackButton = true;
-      break;
-    default:
-      componentToRender = null;
-  }
   return (
     <>
       <Button
@@ -199,9 +172,9 @@ const PostModal = () => {
         aria-describedby="modal-modal-description"
       >
         <form onSubmit={handleSubmit}>
-        {loading ? (
-        <Audio type="Puff" color="#00BFFF" height={100} width={100} />
-      ) : (
+          {loading ? (
+            <Audio type="Puff" color="#00BFFF" height={100} width={100} />
+          ) : (
             <Box
               style={{ position: "relative" }}
               width={500}
@@ -415,10 +388,8 @@ const PostModal = () => {
                 </Button>
               </ButtonGroup>
             </Box>
-      )}
-
+          )}
         </form>
-
       </StyledModal>
 
       {success && setOpen(false)}

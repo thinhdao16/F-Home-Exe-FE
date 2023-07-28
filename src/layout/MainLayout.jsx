@@ -3,21 +3,31 @@ import './main-layout.scss'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../components/sidebar/Sidebar'
 import TopNav from '../components/topnav/TopNav'
-// import { DataContext } from '../pages/DataContext'
+import { AuthContext } from '../components/context/AuthContext'
+import Loading from "react-fullscreen-loading";
 
 const MainLayout = () => {
-    // const {posting } = useContext(DataContext);
-    // console.log('1',posting)
-    
+
+    const{loadingGlobal} = useContext(AuthContext)
     return (
         <>
-            <Sidebar />
+          <>
+        {loadingGlobal && (
+          <Loading loading background="#fff" loaderColor="#ff9066" />
+        )}
+        {  
+<>        
+        <Sidebar />
             <div className="main">
                 <div className="main__content">
                     <TopNav />
                     <Outlet />
                 </div>
             </div>
+            </>
+            }
+      </>
+         
         </>
     )
 }

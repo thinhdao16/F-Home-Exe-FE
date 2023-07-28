@@ -17,18 +17,20 @@ export function AuthContextProvider({ children }) {
   const [buildings, setBuildings] = useState([]);
   const buildingsData = buildings.data;
   const [posting, setPosting] = useState([]);
-  const [imgPostDraft, setImgPostDraft] = useState(null)
-  const [allCmt, setAllCmt] = useState([])
+  const [imgPostDraft, setImgPostDraft] = useState(null);
+  const [allCmt, setAllCmt] = useState([]);
   const [isLiked, setIsLiked] = useState([]);
-  const [chooseWant, setChooseWant] = useState([])
-  const [point, setPoint] = useState([])
+  const [chooseWant, setChooseWant] = useState([]);
+  const [point, setPoint] = useState([]);
   const [isPendingUpdated, setIsPendingUpdated] = useState(null);
-  const [selectedPost, setSelectedPost] = useState(null)
-  const [userProfile, setUserProfile] = useState([])
-  const [openModal, setOpenModal] = useState(false)
-  const [reloadUserProfile, setReloadUserProfile] = useState(null)
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [userProfile, setUserProfile] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
+  const [reloadUserProfile, setReloadUserProfile] = useState(null);
   const [postingPush, setPostingPush] = useState([]);
-  const[allUser, setAllUser]= useState([])
+  const [allUser, setAllUser] = useState([]);
+  const [updateUser, setUpdateUser] = useState(null);
+  const [loadingGlobal, setLoadingGlobal] = useState(false);
   const googleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
@@ -62,29 +64,30 @@ export function AuthContextProvider({ children }) {
           setBuildings(storedBuildings);
         } else {
           axios
-            .get("https://f-home-be.vercel.app/getBuildings")
+            .get("http://localhost:3000/getBuildings")
             .then((response) => {
               setBuildings(response.data);
               localStorage.setItem("buildings", JSON.stringify(response.data));
             })
             .catch((error) => {
               console.log(error);
-            })
-        } 
-        
+            });
+        }
+
         if (user) {
           setAllUser(user);
         } else {
-              axios
-                .get("https://f-home-be.vercel.app/getAllUsers")
-                .then((response) => {
-                  // Xử lý dữ liệu từ API mới theo cách bạn muốn
-                  localStorage.setItem("All_User", JSON.stringify(response.data));
-                })
-                .catch((error) => {
-                  console.log(error);
-                });
-        }        
+          axios
+            .get("http://localhost:3000/getAllUsers")
+            .then((response) => {
+              // Xử lý dữ liệu từ API mới theo cách bạn muốn
+              // localStorage.setItem("All_User", JSON.stringify(response.data));
+              setAllUser(response.data);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        }
       } catch (error) {
         console.log("error", error);
       }
@@ -95,18 +98,29 @@ export function AuthContextProvider({ children }) {
     return () => {
       unsubscribe();
     };
-  }, [reloadUserProfile]);
-
+  }, [reloadUserProfile, updateUser]);
 
   return (
-    <AuthContext.Provider value={{
-      setIsPendingUpdated, isPendingUpdated, selectedPost,
-      setSelectedPost, point,
-      setPoint, openModal,
-      setOpenModal,
-      userProfile, setUserProfile, reloadUserProfile, setReloadUserProfile, postingPush, setPostingPush,
-      allUser, setAllUser
-    }}>
+    <AuthContext.Provider
+      value={{
+        setIsPendingUpdated,
+        isPendingUpdated,
+        selectedPost,
+        setSelectedPost,
+        point,
+        setPoint,
+        openModal,
+        setOpenModal,
+        userProfile,
+        setUserProfile,
+        reloadUserProfile,
+        setReloadUserProfile,
+        postingPush,
+        setPostingPush,
+        loadingGlobal,
+        setLoadingGlobal,
+      }}
+    >
       <DataContext.Provider
         value={{
           googleSignIn,
@@ -124,7 +138,10 @@ export function AuthContextProvider({ children }) {
           setIsLiked,
           chooseWant,
           setChooseWant,
-
+          allUser,
+          setAllUser,
+          updateUser,
+          setUpdateUser,
         }}
       >
         {children}

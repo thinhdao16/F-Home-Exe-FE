@@ -18,13 +18,14 @@ import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import Dropzone from "react-dropzone";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
+import { AuthContext } from "../../components/context/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { googleSignIn, accessToken } = useContext(DataContext);
+  const { googleSignIn, accessToken,allUser,setUpdateUser } = useContext(DataContext);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFilePoint, setSelectedFilePoint] = useState(null);
-  const [fullName, setFullName] = useState("");
+  const [point, setPoint] = useState("");
   const [email, setEmail] = useState("");
   const [description, setDescription] = useState("");
   const [open, setOpen] = useState(false);
@@ -39,7 +40,7 @@ const Login = () => {
           const idToken = await user.getIdToken();
           const accessToken = await user.getIdToken(true);
           const response = await axios.post(
-            "https://f-home-be.vercel.app/login",
+            "http://localhost:3000/login",
             { accessToken: accessToken },
             {
               headers: {
@@ -65,7 +66,7 @@ const Login = () => {
                 Authorization: `Bearer ${token.data.accessToken}`,
               };
               axios
-                .get("https://f-home-be.vercel.app/getRoomsByUserId", {
+                .get("http://localhost:3000/getRoomsByUserId", {
                   headers,
                 })
                 .then((response) => {
@@ -109,6 +110,12 @@ const Login = () => {
       }
       setIsLoading(false); // set loading to false after the API call
     } catch (error) {
+      console.log(error)
+      const userError = error?.response?.data?.data?.accessToken;
+      if (error.message) {
+        localStorage.setItem("user_error", JSON.stringify(userError));
+      }
+      setUpdateUser((preve) => !preve)
       toast.warn(`please wait for admin to confirm`, {
         position: "top-right",
         heading: "Done",
@@ -142,8 +149,7 @@ const Login = () => {
 
   const handleSubmitPoint = async (event) => {
     event.preventDefault();
-    const localUser = localStorage.getItem("All_User");
-    const allUser = JSON.parse(localUser)
+
   
     // Kiểm tra xem email đã tồn tại trong dữ liệu hiện có hay không
     const emailExists = allUser.some((user) => user.email === email);
@@ -152,12 +158,12 @@ const Login = () => {
       var formData = new FormData();
       formData.append("img", selectedFilePoint);
       formData.append("email", email);
-      formData.append("fullname", fullName)
-      formData.append("description", description)
+      formData.append("point", point)
+      formData.append("script", description)
       let isMounted = true;
       try {
         const response = await axios.post(
-          "https://f-home-be.vercel.app/postContract",
+          "http://localhost:3000/postformpointEmail",
           formData,
           {
             headers: {
@@ -172,7 +178,7 @@ const Login = () => {
   
         setSelectedFilePoint(null);
         setEmail("")
-        setFullName("")
+        setPoint("")
         setDescription("")
         if (isMounted) {
           console.log(response.data);
@@ -203,12 +209,7 @@ const Login = () => {
         )}
         {/* Your component JSX goes here */}
       </>
-      {/* <h1 id="site-logo">
-        <img
-          src="https://fuidentity.edunext.vn/images/logo-login-new.png"
-          alt="f-home"
-        />
-      </h1> */}
+
       <div id="wrap-main-content">
         <div className="identity-tabs">
           <a>Login</a>
@@ -349,15 +350,15 @@ const Login = () => {
                     <ContentPasteIcon
                       style={{ color: "#b48845", fontSize: 17 }}
                     />{" "}
-                    FullName
+                    Point
                   </span>
                   <Textarea
                     name="Plain"
                     variant="plain"
                     className="shadow-sm rounded-3 mb-3 bg-white"
-                    placeholder="Transfer content ...  "
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Point ...  "
+                    value={point}
+                    onChange={(e) => setPoint(e.target.value)}
                     style={{ fontSize: 14 }}
                   />
                   <span className="text-dark" style={{ fontSize: 14 }}>

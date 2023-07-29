@@ -40,7 +40,7 @@ const Login = () => {
           const idToken = await user.getIdToken();
           const accessToken = await user.getIdToken(true);
           const response = await axios.post(
-            "http://localhost:3000/login",
+            "https://f-home-be.vercel.app/login",
             { accessToken: accessToken },
             {
               headers: {
@@ -66,7 +66,7 @@ const Login = () => {
                 Authorization: `Bearer ${token.data.accessToken}`,
               };
               axios
-                .get("http://localhost:3000/getRoomsByUserId", {
+                .get("https://f-home-be.vercel.app/getRoomsByUserId", {
                   headers,
                 })
                 .then((response) => {
@@ -163,7 +163,7 @@ const Login = () => {
       let isMounted = true;
       try {
         const response = await axios.post(
-          "http://localhost:3000/postformpointEmail",
+          "https://f-home-be.vercel.app/postformpointEmail",
           formData,
           {
             headers: {

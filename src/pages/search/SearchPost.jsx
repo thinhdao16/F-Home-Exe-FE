@@ -29,7 +29,7 @@ const SearchPost = ({ children }) => {
     event.preventDefault();
     axios
       .post(
-        "http://localhost:3000/createFavouritePost",
+        "https://f-home-be.vercel.app/createFavouritePost",
         { postId: id },
         {
           headers: {
@@ -49,7 +49,7 @@ const SearchPost = ({ children }) => {
     const idLike = isLiked?.filter((like) => like?.post?._id === id)?.[0]._id;
     event.preventDefault();
     axios
-      .delete(`http://localhost:3000/deleteFavouritePost/${idLike}`, {
+      .delete(`https://f-home-be.vercel.app/deleteFavouritePost/${idLike}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${userPosting.data.accessToken}`,

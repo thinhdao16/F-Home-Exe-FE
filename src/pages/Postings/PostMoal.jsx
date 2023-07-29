@@ -81,7 +81,7 @@ const navigate = useNavigate();
       setLoading(true);
 
       axios
-        .post("http://localhost:3000/posts/create", formData, {
+        .post("https://f-home-be.vercel.app/posts/create", formData, {
           headers: {
             Authorization: `Bearer ${token.data.accessToken}`,
             "Content-Type": "multipart/form-data",
@@ -133,7 +133,7 @@ const navigate = useNavigate();
     const token = JSON.parse(localStorage.getItem("access_token"));
     const headers = { Authorization: `Bearer ${token.data.accessToken}` };
     axios
-      .get("http://localhost:3000/getRoomsByUserId", { headers })
+      .get("https://f-home-be.vercel.app/getRoomsByUserId", { headers })
       .then((response) => {
         const roomIds = response.data;
         if (roomIds) {

@@ -50,7 +50,7 @@ function PostingWait() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/posts/", {
+        const response = await axios.get("https://f-home-be.vercel.app/posts/", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${userPosting.data.accessToken}`,
@@ -58,7 +58,7 @@ function PostingWait() {
         });
         setPosting(response.data.data?.postings);
         const responsePoint = await axios.get(
-          "http://localhost:3000/getformpoint",
+          "https://f-home-be.vercel.app/getformpoint",
           {
             headers: {
               "Content-Type": "application/json",
@@ -78,7 +78,7 @@ function PostingWait() {
   const handleApproved = (id) => {
     const confirmed = window.confirm("Bạn có chắc chắn muốn gửi bài này?");
     if (confirmed) {
-      fetch(`http://localhost:3000/deleteformpoint/${id}`, {
+      fetch(`https://f-home-be.vercel.app/deleteformpoint/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

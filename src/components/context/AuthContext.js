@@ -64,7 +64,7 @@ export function AuthContextProvider({ children }) {
           setBuildings(storedBuildings);
         } else {
           axios
-            .get("http://localhost:3000/getBuildings")
+            .get("https://f-home-be.vercel.app/getBuildings")
             .then((response) => {
               setBuildings(response.data);
               localStorage.setItem("buildings", JSON.stringify(response.data));
@@ -78,7 +78,7 @@ export function AuthContextProvider({ children }) {
           setAllUser(user);
         } else {
           axios
-            .get("http://localhost:3000/getAllUsers")
+            .get("https://f-home-be.vercel.app/getAllUsers")
             .then((response) => {
               // Xử lý dữ liệu từ API mới theo cách bạn muốn
               // localStorage.setItem("All_User", JSON.stringify(response.data));

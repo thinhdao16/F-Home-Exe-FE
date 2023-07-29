@@ -19,10 +19,12 @@ import Dropzone from "react-dropzone";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
 import { AuthContext } from "../../components/context/AuthContext";
-
+import { Tabs } from "antd";
+const { TabPane } = Tabs;
 const Login = () => {
   const navigate = useNavigate();
-  const { googleSignIn, accessToken,allUser,setUpdateUser } = useContext(DataContext);
+  const { googleSignIn, accessToken, allUser, setUpdateUser } =
+    useContext(DataContext);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFilePoint, setSelectedFilePoint] = useState(null);
   const [point, setPoint] = useState("");
@@ -110,12 +112,12 @@ const Login = () => {
       }
       setIsLoading(false); // set loading to false after the API call
     } catch (error) {
-      console.log(error)
+      console.log(error);
       const userError = error?.response?.data?.data?.accessToken;
       if (error.message) {
         localStorage.setItem("user_error", JSON.stringify(userError));
       }
-      setUpdateUser((preve) => !preve)
+      setUpdateUser((preve) => !preve);
       toast.warn(`please wait for admin to confirm`, {
         position: "top-right",
         heading: "Done",
@@ -150,16 +152,15 @@ const Login = () => {
   const handleSubmitPoint = async (event) => {
     event.preventDefault();
 
-  
     // Kiểm tra xem email đã tồn tại trong dữ liệu hiện có hay không
     const emailExists = allUser.some((user) => user.email === email);
-  
+
     if (emailExists) {
       var formData = new FormData();
       formData.append("img", selectedFilePoint);
       formData.append("email", email);
-      formData.append("point", point)
-      formData.append("script", description)
+      formData.append("point", point);
+      formData.append("script", description);
       let isMounted = true;
       try {
         const response = await axios.post(
@@ -175,11 +176,11 @@ const Login = () => {
           position: "top-right",
           heading: "Done",
         });
-  
+
         setSelectedFilePoint(null);
-        setEmail("")
-        setPoint("")
-        setDescription("")
+        setEmail("");
+        setPoint("");
+        setDescription("");
         if (isMounted) {
           console.log(response.data);
           setOpen(false);
@@ -197,10 +198,43 @@ const Login = () => {
         position: "top-right",
         heading: "Error",
       });
-      setOpen(false)
+      setOpen(false);
     }
   };
-  
+  const onChange = (key) => {
+    console.log(key);
+  };
+  const items = [
+    {
+      key: "1",
+      label: `Thinh`,
+      children: `Content of Tab Pane 1`,
+      imageUrl:
+        "https://firebasestorage.googleapis.com/v0/b/auth-fhome.appspot.com/o/profilePics%2Ftpbank.jpg?alt=media&token=abe240f1-807a-4d77-b6c9-e916ff8d20d1", // Đường dẫn hình ảnh cho Tab 1
+    },
+    {
+      key: "2",
+      label: `Tin`,
+      imageUrl:
+        "https://firebasestorage.googleapis.com/v0/b/auth-fhome.appspot.com/o/profilePics%2F9280d23cc611154f4c00.jpg?alt=media&token=3daced94-55f4-4660-a54c-303862d56ca4", // Đường dẫn hình ảnh cho Tab 3
+    },
+  ];
+  const itemss = [
+    {
+      key: "1",
+      label: `Hoang`,
+      children: `Content of Tab Pane 3`,
+      imageUrl:
+        "https://firebasestorage.googleapis.com/v0/b/auth-fhome.appspot.com/o/profilePics%2FIMG_2916.JPG?alt=media&token=1b90a24b-44c6-4649-b322-b5bfd0534e80", // Đường dẫn hình ảnh cho Tab 3
+    },
+    {
+      key: "2",
+      label: `Trieu`,
+      children: `Content of Tab Pane 3`,
+      imageUrl:
+        "https://firebasestorage.googleapis.com/v0/b/auth-fhome.appspot.com/o/profilePics%2FQR%20trieu.jpg?alt=media&token=c3ae7cb6-d2fe-40b5-8bfd-f8e158d90929", // Đường dẫn hình ảnh cho Tab 3
+    },
+  ];
   return (
     <div className="body">
       <>
@@ -257,7 +291,11 @@ const Login = () => {
           <button className="btn btn-primary" type="button">
             Log in
           </button>
-          <Link onClick={() => setOpen(true)} relative="path" className="change-rtn-home">
+          <Link
+            onClick={() => setOpen(true)}
+            relative="path"
+            className="change-rtn-home"
+          >
             Return To Home Page
           </Link>
           <Modal
@@ -346,8 +384,65 @@ const Login = () => {
                     },
                   }}
                 >
+                  <div style={{display:"flex"}}>
+                    <Tabs defaultActiveKey="1" onChange={onChange} style={{marginRight:"10px"}}>
+                      {items.map((item) => (
+                        <TabPane
+                          tab={
+                            <div style={{float:"right"}}>
+                              <span>{item.label}</span>
+                            </div>
+                          }
+                          key={item.key}
+                        >
+                          <img
+                            src={item.imageUrl}
+                            alt={`Ms ${item.key}`}
+                            style={{
+                              width: 230,
+                              height: 230,
+                              objectFit: "cover",
+                              marginBottom: "10px",
+                              borderRadius: "15px",
+                              boxShadow:
+                                " rgba(149, 157, 165, 0.2) 0px 8px 24px",
+                            }}
+                          />
+                          {/* <h3>{item.label}</h3> */}
+                        </TabPane>
+                      ))}
+                    </Tabs>
+                    <Tabs defaultActiveKey="1" onChange={onChange}>
+                      {itemss.map((item) => (
+                        <TabPane
+                          tab={
+                            <div>
+                              <span>{item.label}</span>
+                            </div>
+                          }
+                          key={item.key}
+                        >
+                          <img
+                            src={item.imageUrl}
+                            alt={`Ms ${item.key}`}
+                            style={{
+                              width: 230,
+                              height: 230,
+                              objectFit: "cover",
+                              marginBottom: "10px",
+                              borderRadius: "15px",
+                              boxShadow:
+                                " rgba(149, 157, 165, 0.2) 0px 8px 24px",
+                            }}
+                          />
+                          {/* <h3>{item.label}</h3> */}
+                        </TabPane>
+                      ))}
+                    </Tabs>
+                  </div>
+
                   <span className=" text-dark" style={{ fontSize: 14 }}>
-                    <ContentPasteIcon
+                    <CurrencyExchangeIcon
                       style={{ color: "#b48845", fontSize: 17 }}
                     />{" "}
                     Point
@@ -358,11 +453,16 @@ const Login = () => {
                     className="shadow-sm rounded-3 mb-3 bg-white"
                     placeholder="Point ...  "
                     value={point}
-                    onChange={(e) => setPoint(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (!isNaN(value)) {
+                        setPoint(value);
+                      }
+                    }}
                     style={{ fontSize: 14 }}
                   />
                   <span className="text-dark" style={{ fontSize: 14 }}>
-                    <CurrencyExchangeIcon
+                    <ContentPasteIcon
                       style={{ color: "#b48845", fontSize: 17 }}
                     />{" "}
                     Email
@@ -377,7 +477,7 @@ const Login = () => {
                     style={{ fontSize: 14 }}
                   />
                   <span className="text-dark" style={{ fontSize: 14 }}>
-                    <CurrencyExchangeIcon
+                    <ContentPasteIcon
                       style={{ color: "#b48845", fontSize: 17 }}
                     />{" "}
                     Description

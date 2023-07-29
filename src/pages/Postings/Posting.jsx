@@ -17,7 +17,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import PostModal from "./PostMoal";
 import PostComment from "./PostComment";
 import { DataContext } from "../DataContext";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
 import {
@@ -43,8 +43,8 @@ import Dropzone from "react-dropzone";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import ForwardOutlinedIcon from "@mui/icons-material/ForwardOutlined";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
-import { Tabs } from "antd";
-import {Audio } from 'react-loader-spinner';
+import { Tabs, Tag } from "antd";
+import { Audio } from "react-loader-spinner";
 const { TabPane } = Tabs;
 const StyledModal = styled(Modal)({
   display: "flex",
@@ -74,12 +74,12 @@ function Posting({ children, filePath }) {
     setPostingPush,
     isPendingUpdated,
     setUserProfile,
-    setLoadingGlobal
+    setLoadingGlobal,
   } = useContext(AuthContext);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoadingGlobal(true)
+        setLoadingGlobal(false);
         const response = await axios.get(
           "https://f-home-be.vercel.app/getAllFavourite",
           {
@@ -130,9 +130,9 @@ function Posting({ children, filePath }) {
           }
         );
         setUserProfile(responseProfile?.data);
-        setLoadingGlobal(false)
+        setLoadingGlobal(false);
       } catch (error) {
-        setLoadingGlobal(false)
+        setLoadingGlobal(false);
         if (error.response) {
           // Request was made and server responded with a non-2xx status code
           console.log(error.response.data);
@@ -160,7 +160,6 @@ function Posting({ children, filePath }) {
       (posting) => posting.status === "published"
     );
   }, [postingPush]);
-
   const arrPostDarft = useMemo(() => {
     if (!postingPush) return [];
 
@@ -172,42 +171,62 @@ function Posting({ children, filePath }) {
   }, [postingPush]);
   const [value, setValue] = React.useState(0);
 
+  const [loadingDraft, setLoadingDraft] = useState(false);
+
   function handlePostPending(event, id) {
     event.preventDefault();
     const confirmed = window.confirm("Bạn có chắc chắn muốn gửi bài này?");
-    if (confirmed) {
-      if (point?.point > 0) {
-        axios
-          .put(
-            `https://f-home-be.vercel.app/posts/confirm/${id}`,
-            { status: "pending" },
-            {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${userPosting.data.accessToken}`,
-              },
-            }
-          )
-          .then((response) => {
-            toast.success("Successfully you wait pls", {
-              position: "top-right",
-              heading: "Done",
-            });
-            setIsPendingUpdated((prev) => !prev);
-          })
-          .catch((error) => {
-            toast.error("post fail", {
-              position: "top-right",
-              heading: "Done",
-            });
-            console.log(error);
-          });
-      } else {
-        toast.warn("You dont enough point", {
+    const isFptMember = userPosting.data.user.roleName === "fptmember";
+    const isLandlord = userPosting.data.user.roleName === "landlord";
+    const requiredPoint = isFptMember ? 0 : isLandlord ? 4 : null;
+
+    if (confirmed && point && point.point > requiredPoint) {
+      setLoadingDraft(true);
+      const apiUrl = isFptMember
+        ? `https://f-home-be.vercel.app/posts/confirm/${id}`
+        : isLandlord
+        ? `https://f-home-be.vercel.app/posts/confirmLease/${id}`
+        : null;
+
+      if (!apiUrl) {
+        toast.error("Invalid role", {
           position: "top-right",
           heading: "Fail",
         });
+        return;
       }
+      axios
+        .put(
+          apiUrl,
+          { status: "pending" },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${userPosting.data.accessToken}`,
+            },
+          }
+        )
+        .then((response) => {
+          toast.success("Successfully you wait post pls", {
+            position: "top-right",
+            heading: "Done",
+          });
+          setIsPendingUpdated((prev) => !prev);
+        })
+        .catch((error) => {
+          toast.error("post fail", {
+            position: "top-right",
+            heading: "Done",
+          });
+        })
+        .finally(() => {
+          setLoadingDraft(false);
+        });
+    } else {
+      toast.warn("You don't have enough point", {
+        position: "top-right",
+        heading: "Fail",
+      });
     }
   }
 
@@ -215,6 +234,7 @@ function Posting({ children, filePath }) {
     event.preventDefault();
 
     if (window.confirm("Bạn có chắc muốn reject post này không?")) {
+      setLoadingDraft(true);
       axios
         .delete(`https://f-home-be.vercel.app/posts/delete/${id}`, {
           headers: {
@@ -235,11 +255,15 @@ function Posting({ children, filePath }) {
             heading: "Done",
           });
           console.log(error);
+        })
+        .finally(() => {
+          setLoadingDraft(false);
         });
     }
   }
   const handleLike = (event, id) => {
     event.preventDefault();
+    setLoadingGlobal(false)
     axios
       .post(
         "https://f-home-be.vercel.app/createFavouritePost",
@@ -257,11 +281,16 @@ function Posting({ children, filePath }) {
       })
       .catch((error) => {
         console.error("Failed to add like", error);
+      })
+      .finally(() => {
+        setLoadingGlobal(false);
       });
+
   };
   const handleDisLike = (event, id) => {
     const idLike = isLiked?.filter((like) => like?.post?._id === id)?.[0]._id;
     event.preventDefault();
+    setLoadingGlobal(false)
     axios
       .delete(`https://f-home-be.vercel.app/deleteFavouritePost/${idLike}`, {
         headers: {
@@ -274,6 +303,9 @@ function Posting({ children, filePath }) {
       })
       .catch((error) => {
         console.error("Failed to add Dislike", error);
+      })
+      .finally(() => {
+        setLoadingDraft(false);
       });
   };
 
@@ -306,7 +338,7 @@ function Posting({ children, filePath }) {
 
   const [showDeleteButton, setShowDeleteButton] = useState(false);
   const [productComment, setProductComment] = useState(null);
-  const token = JSON.parse(localStorage.getItem("access_token"));
+  // const token = JSON.parse(localStorage.getItem("access_token"));
 
   const [comments, setComments] = useState([]);
 
@@ -327,7 +359,7 @@ function Posting({ children, filePath }) {
         formData,
         {
           headers: {
-            Authorization: `Bearer ${token.data.accessToken}`,
+            Authorization: `Bearer ${ userPosting.data.accessToken}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -363,7 +395,7 @@ function Posting({ children, filePath }) {
         `https://f-home-be.vercel.app/getAllPostingCommentByPost/${id}`,
         {
           headers: {
-            Authorization: `Bearer ${token.data.accessToken}`,
+            Authorization: `Bearer ${userPosting.data.accessToken}`,
           },
         }
       );
@@ -423,9 +455,9 @@ function Posting({ children, filePath }) {
         position: "top-right",
         heading: "Done",
       });
-      setPointScore("")
-      setPointScript("")
-      setSelectedFilePoint(null)
+      setPointScore("");
+      setPointScript("");
+      setSelectedFilePoint(null);
       if (isMounted) {
         console.log(response.data);
         setOpen(false);
@@ -461,13 +493,15 @@ function Posting({ children, filePath }) {
       key: "3",
       label: `Hoang`,
       children: `Content of Tab Pane 3`,
-      imageUrl: "https://www.text-image.com/resources/btn-matrix.jpg", // Đường dẫn hình ảnh cho Tab 3
+      imageUrl:
+        "https://firebasestorage.googleapis.com/v0/b/auth-fhome.appspot.com/o/profilePics%2FIMG_2916.JPG?alt=media&token=1b90a24b-44c6-4649-b322-b5bfd0534e80", // Đường dẫn hình ảnh cho Tab 3
     },
     {
       key: "4",
       label: `Trieu`,
       children: `Content of Tab Pane 3`,
-      imageUrl: "https://firebasestorage.googleapis.com/v0/b/auth-fhome.appspot.com/o/profilePics%2FQR%20trieu.jpg?alt=media&token=c3ae7cb6-d2fe-40b5-8bfd-f8e158d90929", // Đường dẫn hình ảnh cho Tab 3
+      imageUrl:
+        "https://firebasestorage.googleapis.com/v0/b/auth-fhome.appspot.com/o/profilePics%2FQR%20trieu.jpg?alt=media&token=c3ae7cb6-d2fe-40b5-8bfd-f8e158d90929", // Đường dẫn hình ảnh cho Tab 3
     },
   ];
 
@@ -536,7 +570,14 @@ function Posting({ children, filePath }) {
                                 {new Date(post?.updatedAt).toLocaleString()}
                               </span>
                               <span className="ms-2">
-                                {post?.status === "published" && PostingPublic}
+                                {/* {post?.status === "published" && PostingPublic} */}
+                                {post?.type === "share" ? (
+                                  <Tag color="blue">share</Tag>
+                                ) : post?.type === "lease" ? (
+                                  <Tag color="green">lease</Tag>
+                                ) : (
+                                  <Tag color="black">nothing</Tag>
+                                )}
                               </span>
                             </div>
                           </div>
@@ -638,9 +679,14 @@ function Posting({ children, filePath }) {
                               aria-describedby="modal-modal-description"
                             >
                               <form onSubmit={handleSubmit}>
-                              {loading ? (
-        <Audio type="Puff" color="#00BFFF" height={100} width={100} />
-      ) : (
+                                {loading ? (
+                                  <Audio
+                                    type="Puff"
+                                    color="#00BFFF"
+                                    height={100}
+                                    width={100}
+                                  />
+                                ) : (
                                   <Box
                                     style={{
                                       position: "relative",
@@ -961,7 +1007,7 @@ function Posting({ children, filePath }) {
                                       </div>
                                     </div>
                                   </Box>
-      )}
+                                )}
                               </form>
                             </StyledModal>
                             {/* </div> */}
@@ -1059,7 +1105,7 @@ function Posting({ children, filePath }) {
                                 position: "relative",
                                 maxHeight: "430px",
                                 overflow: "auto",
-                                paddingRight:"3px",
+                                paddingRight: "3px",
                               }}
                               bgcolor="white"
                               // borderRadius={5}
@@ -1146,10 +1192,16 @@ function Posting({ children, filePath }) {
                                 placeholder="Point score..."
                                 variant="plain"
                                 value={pointScore}
-                                onChange={(e) => setPointScore(e.target.value)}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (!isNaN(value)) {
+                                    setPointScore(value);
+                                  }
+                                }}
                                 className="shadow-sm rounded-3 mb-1"
                                 style={{ fontSize: 14 }}
                               />
+
                               <span
                                 className=" mt-3"
                                 style={{ fontSize: 14, color: "#b48845" }}
@@ -1233,98 +1285,116 @@ function Posting({ children, filePath }) {
                   </div>
                 </div>
               </div>
-              {Array.isArray(arrPostDarft) &&
-                arrPostDarft
-                  .sort((a, b) => {
-                    return (
-                      new Date(b?.updatedAt).getTime() -
-                      new Date(a?.updatedAt).getTime()
-                    );
-                  })
-                  .map((post) => (
-                    <Card sx={{ maxWidth: 270, marginBottom: 2 }}>
-                      <CardMedia
-                        component="img"
-                        alt="green iguana"
-                        height="140"
-                        image={post?.img}
-                      />
-                      <CardContent>
-                        <div className="row mb-2">
-                          <div className="col-md-8">
-                            <span
-                              style={{
-                                wordWrap: "break-word",
-                                display: "block",
-                                marginRight: -45,
-                                overflow: "auto",
-                                maxHeight: 35,
-                              }}
-                            >
-                              {post?.title}
-                            </span>
-                          </div>{" "}
-                          <div className="col-md-2" style={{ marginTop: -5 }}>
-                            {" "}
-                            <div style={styleStatus}>
-                              {" "}
-                              {post.status === "draft" && PostingDraft}
+              {loadingDraft ? (
+                <Audio type="Puff" color="#00BFFF" height={100} width={100} />
+              ) : (
+                <>
+                  {Array.isArray(arrPostDarft) &&
+                    arrPostDarft
+                      .sort((a, b) => {
+                        return (
+                          new Date(b?.updatedAt).getTime() -
+                          new Date(a?.updatedAt).getTime()
+                        );
+                      })
+                      .map((post) => (
+                        <Card sx={{ maxWidth: 270, marginBottom: 2 }}>
+                          <CardMedia
+                            component="img"
+                            alt="green iguana"
+                            height="140"
+                            image={post?.img}
+                          />
+                          <CardContent>
+                            <div className="row mb-2">
+                              <div className="col-md-8">
+                                <span
+                                  style={{
+                                    wordWrap: "break-word",
+                                    display: "block",
+                                    marginRight: -45,
+                                    overflow: "auto",
+                                    maxHeight: 35,
+                                  }}
+                                >
+                                  {post?.title}
+                                </span>
+                              </div>{" "}
+                              <div
+                                className="col-md-2"
+                                style={{ marginTop: -5 }}
+                              >
+                                {" "}
+                                <div style={styleStatus}>
+                                  {" "}
+                                  {post.status === "draft" && PostingDraft}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                        <div className="row">
-                          <div className="col-md-4" style={{ fontSize: 15 }}>
-                            <CropIcon
-                              className="d-block"
-                              style={{ color: "#b48845" }}
-                            />{" "}
-                            {post?.rooms?.size}
-                          </div>
-                          <div className="col-md-4" style={{ fontSize: 15 }}>
-                            {" "}
-                            <RoofingOutlinedIcon
-                              className="d-block"
-                              style={{ color: "#b48845" }}
-                            />{" "}
-                            {post?.buildings?.buildingName}
-                          </div>
-                          <div className="col-md-4 " style={{ fontSize: 15 }}>
-                            <PriceChangeOutlinedIcon
-                              className="d-block"
-                              style={{ color: "#b48845" }}
-                            />
-                            {post?.rooms?.price}{" "}
-                          </div>
-                        </div>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ maxHeight: 80, overflow: "auto" }}
-                        >
-                          {post?.description}
-                        </Typography>
-                      </CardContent>
-                      <CardActions>
-                        <Button size="small">
-                          <DoneOutlinedIcon
-                            sx={{ color: "green" }}
-                            onClick={(event) =>
-                              handlePostPending(event, post._id)
-                            }
-                          />
-                        </Button>
-                        <Button size="small">
-                          {" "}
-                          <DeleteOutlinedIcon
-                            sx={{ color: "red" }}
-                            onClick={(event) =>
-                              handlePostRejct(event, post._id)
-                            }
-                          />
-                        </Button>
-                      </CardActions>
-                    </Card>
-                  ))}
+                            <div className="row">
+                              <div
+                                className="col-md-4"
+                                style={{ fontSize: 15 }}
+                              >
+                                <CropIcon
+                                  className="d-block"
+                                  style={{ color: "#b48845" }}
+                                />{" "}
+                                {post?.rooms?.size}
+                              </div>
+                              <div
+                                className="col-md-4"
+                                style={{ fontSize: 15 }}
+                              >
+                                {" "}
+                                <RoofingOutlinedIcon
+                                  className="d-block"
+                                  style={{ color: "#b48845" }}
+                                />{" "}
+                                {post?.buildings?.buildingName}
+                              </div>
+                              <div
+                                className="col-md-4 "
+                                style={{ fontSize: 15 }}
+                              >
+                                <PriceChangeOutlinedIcon
+                                  className="d-block"
+                                  style={{ color: "#b48845" }}
+                                />
+                                {post?.rooms?.price}{" "}
+                              </div>
+                            </div>
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{ maxHeight: 80, overflow: "auto" }}
+                            >
+                              {post?.description}
+                            </Typography>
+                          </CardContent>
+                          <CardActions>
+                            <Button size="small">
+                              <DoneOutlinedIcon
+                                sx={{ color: "green" }}
+                                onClick={(event) =>
+                                  handlePostPending(event, post._id)
+                                }
+                              />
+                            </Button>
+                            <Button size="small">
+                              {" "}
+                              <DeleteOutlinedIcon
+                                sx={{ color: "red" }}
+                                onClick={(event) =>
+                                  handlePostRejct(event, post._id)
+                                }
+                              />
+                            </Button>
+                          </CardActions>
+                        </Card>
+                      ))}
+                </>
+              )}
             </DashboardWrapperRight>
           </DashboardWrapper>
         </div>

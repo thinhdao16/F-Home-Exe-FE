@@ -21,8 +21,7 @@ import { toast } from "react-toastify";
 import { useContext } from "react";
 import { AuthContext } from "../../components/context/AuthContext";
 import { Audio } from "react-loader-spinner";
-import {  useNavigate } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
 
 const StyledModal = styled(Modal)({
   display: "flex",
@@ -38,8 +37,7 @@ const UserBox = styled(Box)({
 });
 
 const PostModal = () => {
-  
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const handleClose = () => setOpen(false);
   const [success, setSuccess] = useState(false);
@@ -59,11 +57,11 @@ const navigate = useNavigate();
   const [buildingName, setBuildingName] = useState("");
   const [buildingId, setBuildingId] = useState("");
   const [loading, setLoading] = useState(false);
-  
+
   const { setIsPendingUpdated, userProfile } = useContext(AuthContext);
-  const handleSubmit = (event) => { 
+  const handleSubmit = (event) => {
     event.preventDefault();
-    const emailExists = userProfile?.phoneNumber
+    const emailExists = userProfile?.phoneNumber;
     if (emailExists !== "") {
       const token = JSON.parse(localStorage.getItem("access_token"));
       if (!token) {
@@ -76,6 +74,11 @@ const navigate = useNavigate();
       formData.append("buildings", buildingId);
       formData.append("rooms", room);
       formData.append("img", selectedFile);
+      if (token?.data?.user?.roleName === "landlord") {
+        formData.append("type", "lease");
+      } else if (token?.data?.user?.roleName === "fptmember") {
+        formData.append("type", "share");
+      }
       let isMounted = true;
 
       setLoading(true);
@@ -210,37 +213,41 @@ const navigate = useNavigate();
               <hr width="100%" size="5px" align="center" color="gray" />
               <div>
                 <UserBox>
-                  <Avatar
-                    src={userPostings?.img}
-                    sx={{ width: 40, height: 40, marginTop: 1 }}
-                  />
-                  <Typography
-                    fontWeight={500}
-                    sx={{
-                      marginTop: -3,
-                      color: "black",
-                      fontSize: ".875rem",
-                      fontWeight: 600,
-                    }}
-                    variant="span"
-                  >
-                    {userPostings?.fullname}
-                  </Typography>
-                  <Typography
-                    style={{
-                      marginLeft: -68,
-                      marginTop: 30,
-                      fontSize: "0.75rem",
-                      fontWeight: "500",
-                      backgroundColor: "#e4e6eb",
-                      boxShadow: "rgb(149 157 165 / 20%) 0px 8px 24px",
-                      padding: "2px 4px",
-                      borderRadius: "10px",
-                      color: "black",
-                    }}
-                  >
-                    <AccountCircleOutlinedIcon /> {userPostings?.roleName}
-                  </Typography>
+                  <div className="row">
+                    <div className="col-md-2">
+                      <Avatar
+                        src={userPostings?.img}
+                        sx={{ width: 40, height: 40, marginTop: 1.5 }}
+                      />
+                    </div>
+                    <div className="col-md-9">
+                      <Typography
+                        fontWeight={500}
+                        sx={{
+                          color: "black",
+                          fontSize: ".875rem",
+                          fontWeight: 600,
+                        }}
+                        variant="span"
+                      >
+                        {userPostings?.fullname}
+                      </Typography>
+                      <Typography
+                        style={{
+                          marginLeft: 0,
+                          fontSize: "0.75rem",
+                          fontWeight: "500",
+                          backgroundColor: "#e4e6eb",
+                          boxShadow: "rgb(149 157 165 / 20%) 0px 8px 24px",
+                          padding: "2px 4px",
+                          borderRadius: "10px",
+                          color: "black",
+                        }}
+                      >
+                        <AccountCircleOutlinedIcon /> {userPostings?.roleName}
+                      </Typography>
+                    </div>
+                  </div>
                 </UserBox>
               </div>
               <div
